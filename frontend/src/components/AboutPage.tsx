@@ -25,6 +25,15 @@ export default function AboutPage() {
         <p className="text-sm text-gray-500 mt-1.5">
           Why we built it, where the data comes from, and what's coming next.
         </p>
+        <div className="bg-gray-900/60 rounded-2xl p-6 border border-gray-800 text-center mt-5">
+          <p className="text-sm text-gray-400 leading-relaxed">
+            The principle behind this app is simple:
+          </p>
+          <p className="text-base font-semibold text-indigo-400 mt-3">
+            Publicly funded data should be accessible and useful
+            for the students it's about.
+          </p>
+        </div>
       </div>
 
       {/* ── Why this exists ── */}
@@ -278,17 +287,6 @@ export default function AboutPage() {
           </p>
         </div>
       </section>
-
-      {/* ── Closing principle ── */}
-      <div className="bg-gray-900/60 rounded-2xl p-6 border border-gray-800 text-center">
-        <p className="text-sm text-gray-400 leading-relaxed">
-          The principle behind this app is simple:
-        </p>
-        <p className="text-base font-semibold text-indigo-400 mt-3">
-          Publicly funded data should be accessible and useful
-          for the students it's about.
-        </p>
-      </div>
 
       {/* ── Built by ── */}
       <section id="built-by" className="space-y-4">
