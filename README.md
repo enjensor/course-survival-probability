@@ -1,235 +1,212 @@
-# Education.gov.au Higher Education Statistics Scraper
+# Course Survival Probability
 
-## Overview
+Data-driven completion insights for Australian universities, built on the Department of Education's Higher Education Statistics Collection.
 
-This repository contains a structured web crawler and downloader
-designed to systematically retrieve **Higher Education Statistics --
-Student Data** files from the Australian Government Department of
-Education website:
+**Live app:** [course-survival-probability.onrender.com](https://course-survival-probability.onrender.com)
+
+---
+
+## What It Does
+
+This app helps prospective students answer a simple question: **where am I most likely to finish my degree and succeed?**
+
+It takes official government data published by the Australian Department of Education and turns it into clear, visual reports covering:
+
+- **Dropout risk** — current rates and year-over-year trends
+- **Completion rates** — 4, 6, and 9-year graduation windows with outcome breakdowns
+- **Retention** — whether students come back after first year
+- **Subject pass rates** — how many students are passing their subjects
+- **Field-of-study rankings** — graduation rates by field across all universities
+- **Equity performance** — how well universities support students from different backgrounds (First Nations, regional, lower-income, disability, non-English speaking)
+- **Risk heatmap** — compare all universities side-by-side for a chosen field of study
+
+All data is sourced from publicly available government statistics. The app is free to use.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React + TypeScript + Vite + Tailwind CSS |
+| Backend | FastAPI (Python) + SQLite |
+| Data | Australian Dept of Education XLSX files, ingested via `ingest.py` |
+| Hosting | Render (single service — FastAPI serves the built React app) |
+
+---
+
+## Running Locally
+
+### Prerequisites
+
+- Python 3.9+
+- Node.js 18+ and npm
+- The SQLite database (`he_stats.db`) — either committed in the repo or generated via `ingest.py`
+
+### 1. Install dependencies
+
+```bash
+# Backend
+pip install -r backend/requirements.txt
+
+# Frontend
+cd frontend && npm install && cd ..
+```
+
+### 2. Start the servers
+
+You need two terminal windows:
+
+**Terminal 1 — Backend (port 8000):**
+```bash
+cd backend
+uvicorn main:app --reload --port 8000
+```
+
+**Terminal 2 — Frontend (port 5173):**
+```bash
+cd frontend
+npx vite --port 5173
+```
+
+### 3. Open the app
+
+Go to **http://localhost:5173** in your browser.
+
+The Vite dev server proxies `/api` requests to the FastAPI backend on port 8000, so both servers need to be running.
+
+---
+
+## Project Structure
+
+```
+├── backend/
+│   ├── main.py              # FastAPI app — API routes + static file serving
+│   ├── engine.py            # Core analytics engine (report, heatmap, equity)
+│   ├── db.py                # SQLite connection manager
+│   └── requirements.txt     # Python dependencies
+├── frontend/
+│   ├── src/
+│   │   ├── App.tsx          # Main app shell, routing, state management
+│   │   ├── api.ts           # API client
+│   │   ├── types.ts         # TypeScript interfaces
+│   │   └── components/
+│   │       ├── ReportCard.tsx          # University report card
+│   │       ├── EquityReport.tsx        # Equity group performance
+│   │       ├── HeatmapView.tsx         # Field-of-study risk heatmap
+│   │       ├── CompletionGauge.tsx     # Completion rate visualisation
+│   │       ├── CompletionTimeline.tsx  # 4/6/9-year graduation timeline
+│   │       ├── TrendChart.tsx          # Dropout trend sparkline
+│   │       ├── RiskBadge.tsx           # Percentile-based risk indicator
+│   │       ├── FieldRanking.tsx        # Graduation rate ranking table
+│   │       ├── AustraliaMap.tsx        # Interactive state/territory map
+│   │       ├── InstitutionSelector.tsx # University dropdown with alias search
+│   │       ├── FieldSelector.tsx       # Field of study dropdown
+│   │       ├── HowToRead.tsx          # Contextual guide panels
+│   │       └── AboutPage.tsx          # About, disclaimer, attribution
+│   ├── index.html
+│   ├── vite.config.ts
+│   └── package.json
+├── he_stats.db              # SQLite database (9MB, committed for deployment)
+├── ingest.py                # Data ingestion — XLSX files → SQLite
+├── schema.sql               # Database schema
+├── edu_he_stats_downloader.py  # Government data scraper
+├── run_download.sh          # Convenience script for the scraper
+└── render.yaml              # Render deployment config
+```
+
+---
+
+## Data Pipeline
+
+The data pipeline has three stages:
+
+### 1. Download government data
+
+```bash
+bash run_download.sh
+```
+
+This crawls the Department of Education website and downloads all Higher Education Statistics XLSX files into `_downloads/files/`. See the [Data Scraper](#data-scraper) section below for details.
+
+### 2. Ingest into SQLite
+
+```bash
+python ingest.py
+```
+
+Reads the downloaded XLSX files and populates `he_stats.db` with normalised tables for institutions, fields of education, attrition/retention rates, completion cohorts, enrolments, and equity performance data.
+
+### 3. Run the app
+
+Start the backend and frontend as described above. The app reads from `he_stats.db` at runtime.
+
+---
+
+## Deployment
+
+The app deploys as a single service on Render. The `render.yaml` config handles everything:
+
+- **Build:** Installs Python deps, then builds the React frontend (`npm run build`)
+- **Run:** FastAPI serves the API at `/api/*` and the built React app for all other routes
+
+Auto-deploys on every push to `main`.
+
+---
+
+## Disclaimer
+
+This app is in active development and provided for informational purposes only. It is not professional advice. Data is sourced from the Australian Department of Education's Higher Education Statistics Collection and is subject to the limitations of the original source. This is an independent project with no affiliation to any government agency or university. See the full disclaimer in the app's About page.
+
+---
+
+## Data Scraper
+
+The `edu_he_stats_downloader.py` script retrieves Higher Education Statistics files from:
 
 https://www.education.gov.au/higher-education-statistics/student-data
 
-The scraper is designed to:
+### Scraper usage
 
--   Traverse all year-based "Student Data" pages
--   Discover downloadable data assets (XLSX, CSV, ZIP, PDF)
--   Follow `/download/` endpoints used for direct file delivery
--   Generate a complete manifest of discovered resources
--   Download files with:
-    -   Robust retry logic
-    -   Rate limiting
-    -   SHA256 deduplication
-    -   Resume support for partial downloads
-    -   Optional progress logging
+```bash
+# Full run (manifest + download)
+python edu_he_stats_downloader.py --out ./_downloads --max-pages 3000 --delay 0.6 --heartbeat 25
 
-The output provides a clean foundation for downstream ingestion into a
-database for analytics and application development.
+# Manifest only (no downloads)
+python edu_he_stats_downloader.py --out ./_downloads --no-download
 
-------------------------------------------------------------------------
+# Verbose logging
+python edu_he_stats_downloader.py --out ./_downloads --verbose --heartbeat 10
+```
 
-# Files Included
+### Scraper dependencies
 
-## 1. `edu_he_stats_downloader.py`
-
-Main crawler and downloader script.
-
-Key capabilities:
-
--   Domain-scoped crawling (avoids mirroring the entire site)
--   Structure-agnostic (handles year-to-year structural variation)
--   Retry with exponential backoff
--   Configurable crawl depth
--   Verbose progress logging
--   Heartbeat reporting
--   File hash index for deduplication
--   Manifest creation (URL + referrer provenance)
-
-------------------------------------------------------------------------
-
-## 2. `run_download.sh`
-
-Convenience shell script for executing the downloader with recommended
-flags.
-
-This ensures consistent runtime parameters across environments and
-supports repeatable execution.
-
-------------------------------------------------------------------------
-
-# Installation
-
-Requires Python 3.9+.
-
-Install dependencies:
-
-``` bash
+```bash
 pip install requests beautifulsoup4 urllib3
 ```
 
-No additional framework dependencies are required.
+### Output
 
-------------------------------------------------------------------------
-
-# Usage
-
-## Basic Run (Manifest + Download)
-
-``` bash
-python edu_he_stats_downloader.py   --out ./downloads   --max-pages 3000   --delay 0.6   --heartbeat 25
+```
+_downloads/
+├── manifest.tsv      # URL + referrer provenance for every file
+├── hash_index.tsv    # SHA256 deduplication index
+└── files/
+    ├── file1.xlsx
+    ├── file2.csv
+    └── ...
 ```
 
-## Verbose Crawl Logging
+---
 
-``` bash
-python edu_he_stats_downloader.py   --out ./downloads   --verbose   --heartbeat 10
-```
+## Built By
 
-## Manifest Only (No Downloads)
+**Dr Jason Ensor** — Data & Analytics Executive, Sydney, Australia
 
-``` bash
-python edu_he_stats_downloader.py   --out ./downloads   --no-download
-```
+[LinkedIn](https://linkedin.com/in/jasondensor/) | [Email](mailto:jasondensor@gmail.com)
 
-## Fetch Timing Diagnostics
+---
 
-Useful if the script appears stalled:
+## Licence
 
-``` bash
-python edu_he_stats_downloader.py   --out ./downloads   --verbose   --log-fetch
-```
-
-## Download Progress Logging
-
-``` bash
-python edu_he_stats_downloader.py   --out ./downloads   --log-download-progress
-```
-
-------------------------------------------------------------------------
-
-# Output Structure
-
-After execution:
-
-    downloads/
-    ├── manifest.tsv
-    ├── hash_index.tsv
-    └── files/
-        ├── file1.xlsx
-        ├── file2.csv
-        ├── file3.zip
-        └── ...
-
-### manifest.tsv
-
-Tab-separated file listing:
-
-    url    referrer
-
-Provides full provenance for every discovered downloadable asset.
-
-### hash_index.tsv
-
-Maps:
-
-    sha256    local_path
-
-Used to deduplicate identical files referenced multiple times.
-
-------------------------------------------------------------------------
-
-# Crawl Behaviour
-
-The scraper is intentionally constrained to the following path prefixes:
-
--   `/higher-education-statistics/student-data`
--   `/higher-education-statistics/resources`
--   `/higher-education-statistics`
--   `/download/`
-
-This ensures:
-
--   Comprehensive coverage of student data
--   Avoidance of unrelated education.gov.au sections
--   Controlled crawl scope
-
-------------------------------------------------------------------------
-
-# Networking and Reliability Features
-
-The script includes:
-
--   Retry policy (429, 500, 502, 503, 504)
--   Respect for `Retry-After` headers
--   Configurable delay between requests
--   Connection pooling
--   Timeout separation (connect vs read)
--   Single re-queue for transient fetch failures
-
-------------------------------------------------------------------------
-
-# Performance Expectations
-
-Typical run characteristics:
-
--   Crawl phase: 1--5 minutes depending on network
--   Download phase: dependent on file volume (can be substantial)
--   Total file count: varies by year availability and historical
-    retention
-
-If verbose logging is disabled, the script may appear quiet during the
-crawl phase. Use `--heartbeat` or `--verbose` for visibility.
-
-------------------------------------------------------------------------
-
-# Known Constraints
-
--   Some files may be very small (e.g., redirect stubs or metadata
-    artifacts)
--   Some historical pages may return intermittent timeouts
--   The site structure changes across years; the crawler handles this by
-    link-following rather than fixed assumptions
--   This script does not currently parallelise downloads (intentionally
-    conservative to avoid rate limits)
-
-------------------------------------------------------------------------
-
-# Recommended Workflow
-
-1.  Run scraper (manifest + download)
-2.  Inspect `manifest.tsv`
-3.  Validate file inventory
-4.  Proceed to structured ingestion into a database
-5.  Implement schema normalization + versioning strategy
-
-------------------------------------------------------------------------
-
-# Legal and Ethical Considerations
-
--   The scraper operates within publicly accessible pages.
--   It respects HTTP status codes and retry headers.
--   It includes configurable delays to avoid excessive load.
-
-Users are responsible for ensuring compliance with: - Website terms of
-use - Applicable data usage policies - Government data licensing
-conditions
-
-------------------------------------------------------------------------
-
-# Next Phase (Planned)
-
-The natural next step is:
-
--   Normalizing files into structured directories by year and category
--   Building a metadata catalog table
--   Creating an ingestion pipeline into DuckDB or PostgreSQL
--   Creating a reproducible ETL framework
--   Versioning datasets by download timestamp
-
-------------------------------------------------------------------------
-
-# Project Context
-
-This scraper supports the development of a longitudinal higher education
-analytics platform designed to transform Australian Higher Education
-Statistics into structured, decision-grade intelligence suitable for
-application development and advanced analysis.
+Data sourced from the Australian Department of Education under Australian Government open data policy. The application code in this repository is provided as-is for educational and informational purposes.
