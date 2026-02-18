@@ -2,13 +2,18 @@
 FastAPI backend for the Course Survival Probability engine.
 
 Run with:  uvicorn main:app --reload --port 8000
+
+In production the built React frontend is served from ../frontend/dist.
 """
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from db import get_db
 from engine import compute_report, compute_field_heatmap, compute_equity_report
@@ -19,21 +24,10 @@ app = FastAPI(
     version="1.0.0",
 )
 
-import os
-
-_allowed_origins = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
-
-# In production, allow the Vercel frontend domain (set via FRONTEND_URL env var)
-_frontend_url = os.environ.get("FRONTEND_URL")
-if _frontend_url:
-    _allowed_origins.append(_frontend_url)
-
+# CORS — only needed for local dev (Vite on :5173 → FastAPI on :8000)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_allowed_origins,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
     allow_methods=["GET"],
     allow_headers=["*"],
 )
@@ -140,3 +134,25 @@ def get_equity_report(institution_id: int):
         return data
     finally:
         conn.close()
+
+
+# ── Serve the React frontend (production only) ──────────────────────
+# In production the build script runs `npm run build` and the output
+# lands in ../frontend/dist.  We mount it as a catch-all so that the
+# SPA's client-side routing works (any non-/api path returns index.html).
+
+DIST_DIR = Path(__file__).resolve().parent.parent / "frontend" / "dist"
+
+if DIST_DIR.is_dir():
+    # Serve static assets (JS, CSS, images) at /assets/...
+    app.mount("/assets", StaticFiles(directory=DIST_DIR / "assets"), name="assets")
+
+    # Catch-all: return index.html for any non-API route (SPA routing)
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        # If a real file exists in dist (e.g. favicon, vite.svg), serve it
+        file_path = DIST_DIR / full_path
+        if full_path and file_path.is_file():
+            return FileResponse(file_path)
+        # Otherwise return index.html for client-side routing
+        return FileResponse(DIST_DIR / "index.html")
