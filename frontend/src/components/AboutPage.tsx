@@ -30,193 +30,205 @@ export default function AboutPage() {
       {/* ── Why this exists ── */}
       <section className="space-y-4">
         <SectionHeading>Why This Exists</SectionHeading>
-        <Prose>
-          <p>
-            The Australian Government publishes detailed data on how every university performs — dropout
-            rates, completion rates, whether students pass their subjects, how long it takes to finish.
-            It's one of the most thorough higher education datasets in the world.
-          </p>
-          <p>
-            But almost nobody looks at it when choosing a university. Instead, students rely on global
-            rankings (which mostly measure research reputation, not student experience), marketing, and
-            word of mouth. That means big decisions get made without the most relevant information.
-          </p>
-          <p className="text-indigo-400 font-medium">
-            This app puts that data in your hands.
-          </p>
-        </Prose>
+        <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
+          <Prose>
+            <p>
+              The Australian Government publishes detailed data on how every university performs — dropout
+              rates, completion rates, whether students pass their subjects, how long it takes to finish.
+              It's one of the most thorough higher education datasets in the world.
+            </p>
+            <p>
+              But almost nobody looks at it when choosing a university. Instead, students rely on global
+              rankings (which mostly measure research reputation, not student experience), marketing, and
+              word of mouth. That means big decisions get made without the most relevant information.
+            </p>
+            <p className="text-indigo-400 font-medium">
+              This app puts that data in your hands.
+            </p>
+          </Prose>
+        </div>
       </section>
 
       {/* ── What it does ── */}
       <section className="space-y-4">
         <SectionHeading>What It Does</SectionHeading>
-        <Prose>
-          <p>
-            The app takes official government data and turns it into something you can actually use
-            when deciding where to study. The core question it helps you answer:
-          </p>
-          <blockquote className="border-l-2 border-indigo-500 pl-4 py-1 text-gray-300 italic">
-            Where am I most likely to finish my degree and succeed?
-          </blockquote>
-          <p>
-            Instead of asking which uni has the best brand, it focuses on things that directly
-            affect your experience:
-          </p>
-          <ul className="list-disc pl-5 space-y-1.5 text-gray-400">
-            <li>How many students actually finish their degree (over 4, 6, and 9 years)</li>
-            <li>Dropout rates — and whether they're getting better or worse</li>
-            <li>Whether students come back after first year</li>
-            <li>How many students pass their subjects</li>
-            <li>How different fields compare across universities</li>
-            <li>How well universities support students from different backgrounds</li>
-          </ul>
-        </Prose>
+        <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
+          <Prose>
+            <p>
+              The app takes official government data and turns it into something you can actually use
+              when deciding where to study. The core question it helps you answer:
+            </p>
+            <blockquote className="border-l-2 border-indigo-500 pl-4 py-1 text-gray-300 italic">
+              Where am I most likely to finish my degree and succeed?
+            </blockquote>
+            <p>
+              Instead of asking which uni has the best brand, it focuses on things that directly
+              affect your experience:
+            </p>
+            <ul className="list-disc pl-5 space-y-1.5 text-gray-400">
+              <li>How many students actually finish their degree (over 4, 6, and 9 years)</li>
+              <li>Dropout rates — and whether they're getting better or worse</li>
+              <li>Whether students come back after first year</li>
+              <li>How many students pass their subjects</li>
+              <li>How different fields compare across universities</li>
+              <li>How well universities support students from different backgrounds</li>
+            </ul>
+          </Prose>
+        </div>
       </section>
 
       {/* ── Why it matters ── */}
       <section className="space-y-4">
         <SectionHeading>Why This Matters</SectionHeading>
-        <Prose>
-          <p>
-            University is a big commitment — years of your life and significant financial investment.
-            Dropping out, taking much longer than expected, or picking an institution that's in decline
-            all have real consequences. But these risks are rarely shown to you when you're applying.
-          </p>
-          <p>Using real data, this app helps you:</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {[
-              { n: '1', text: 'See past the marketing and understand how universities actually perform' },
-              { n: '2', text: 'Compare universities and fields side by side with real numbers' },
-              { n: '3', text: 'Spot trends — is this uni getting better or worse over time?' },
-              { n: '4', text: 'Make decisions based on evidence, not just reputation' },
-            ].map((item) => (
-              <div key={item.n} className="bg-gray-900 rounded-xl p-4 flex gap-3">
-                <span className="text-lg font-bold text-indigo-500 tabular-nums shrink-0">{item.n}</span>
-                <p className="text-sm text-gray-400">{item.text}</p>
-              </div>
-            ))}
-          </div>
-          <p>
-            This doesn't mean global rankings or research excellence don't matter. But when you're
-            deciding where to spend 3–6 years of your life, you deserve to see the outcomes data too.
-          </p>
-        </Prose>
+        <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
+          <Prose>
+            <p>
+              University is a big commitment — years of your life and significant financial investment.
+              Dropping out, taking much longer than expected, or picking an institution that's in decline
+              all have real consequences. But these risks are rarely shown to you when you're applying.
+            </p>
+            <p>Using real data, this app helps you:</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                { n: '1', text: 'See past the marketing and understand how universities actually perform' },
+                { n: '2', text: 'Compare universities and fields side by side with real numbers' },
+                { n: '3', text: 'Spot trends — is this uni getting better or worse over time?' },
+                { n: '4', text: 'Make decisions based on evidence, not just reputation' },
+              ].map((item) => (
+                <div key={item.n} className="bg-gray-800 rounded-xl p-4 flex gap-3">
+                  <span className="text-lg font-bold text-indigo-500 tabular-nums shrink-0">{item.n}</span>
+                  <p className="text-sm text-gray-400">{item.text}</p>
+                </div>
+              ))}
+            </div>
+            <p>
+              This doesn't mean global rankings or research excellence don't matter. But when you're
+              deciding where to spend 3–6 years of your life, you deserve to see the outcomes data too.
+            </p>
+          </Prose>
+        </div>
       </section>
 
       {/* ── How it's different ── */}
       <section className="space-y-4">
         <SectionHeading>How It's Different from Rankings</SectionHeading>
-        <Prose>
-          <p>
-            Global rankings measure things like how often a university's research gets cited,
-            its reputation among academics, and how internationally diverse it is. Useful for some
-            purposes — but not great for telling you whether <em>you'll</em> actually finish your degree there.
-          </p>
+        <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
+          <Prose>
+            <p>
+              Global rankings measure things like how often a university's research gets cited,
+              its reputation among academics, and how internationally diverse it is. Useful for some
+              purposes — but not great for telling you whether <em>you'll</em> actually finish your degree there.
+            </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-2">
-            <div className="bg-gray-900/60 rounded-xl p-4 border border-gray-800">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                This app doesn't ask
-              </p>
-              <p className="text-sm text-gray-500 italic">
-                "Which uni is ranked highest in the world?"
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-2">
+              <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                  This app doesn't ask
+                </p>
+                <p className="text-sm text-gray-500 italic">
+                  "Which uni is ranked highest in the world?"
+                </p>
+              </div>
+              <div className="bg-indigo-950/30 rounded-xl p-4 border border-indigo-800/50">
+                <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-2">
+                  Instead, it asks
+                </p>
+                <ul className="text-sm text-gray-300 space-y-1.5">
+                  <li>"Where am I most likely to finish my degree in this field?"</li>
+                  <li>"Is this uni getting better or worse at keeping students?"</li>
+                  <li>"What's the dropout risk if I study here?"</li>
+                </ul>
+              </div>
             </div>
-            <div className="bg-indigo-950/30 rounded-xl p-4 border border-indigo-800/50">
-              <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-2">
-                Instead, it asks
-              </p>
-              <ul className="text-sm text-gray-300 space-y-1.5">
-                <li>"Where am I most likely to finish my degree in this field?"</li>
-                <li>"Is this uni getting better or worse at keeping students?"</li>
-                <li>"What's the dropout risk if I study here?"</li>
-              </ul>
-            </div>
-          </div>
-        </Prose>
+          </Prose>
+        </div>
       </section>
 
       {/* ── Where the data comes from ── */}
       <section className="space-y-4">
         <SectionHeading>Where the Data Comes From</SectionHeading>
-        <Prose>
-          <p>
-            Everything in this app comes from the Australian Department of Education's official
-            statistics. Every university is required to report this data annually. We use:
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {[
-              { label: 'Enrolments', desc: 'How many students are enrolled at each uni, broken down by field of study and year.' },
-              { label: 'Graduates', desc: 'How many students completed their degrees at each uni and in each field.' },
-              { label: 'Dropout & Return Rates', desc: 'What percentage of new students left and didn\'t come back — and trends over time.' },
-              { label: 'Completion Rates', desc: 'Of the students who started together, how many finished within 4, 6, or 9 years.' },
-              { label: 'Equity Data', desc: 'How well universities support students from different backgrounds — regional, lower-income, First Nations, disability, and more.' },
-              { label: 'Risk Scores', desc: 'A combined measure we calculate from dropout rates and graduation rates, so you can compare at a glance.' },
-            ].map((item) => (
-              <div key={item.label} className="bg-gray-900 rounded-xl p-4">
-                <h4 className="text-sm font-semibold text-gray-200">{item.label}</h4>
-                <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </Prose>
+        <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
+          <Prose>
+            <p>
+              Everything in this app comes from the Australian Department of Education's official
+              statistics. Every university is required to report this data annually. We use:
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                { label: 'Enrolments', desc: 'How many students are enrolled at each uni, broken down by field of study and year.' },
+                { label: 'Graduates', desc: 'How many students completed their degrees at each uni and in each field.' },
+                { label: 'Dropout & Return Rates', desc: 'What percentage of new students left and didn\'t come back — and trends over time.' },
+                { label: 'Completion Rates', desc: 'Of the students who started together, how many finished within 4, 6, or 9 years.' },
+                { label: 'Equity Data', desc: 'How well universities support students from different backgrounds — regional, lower-income, First Nations, disability, and more.' },
+                { label: 'Risk Scores', desc: 'A combined measure we calculate from dropout rates and graduation rates, so you can compare at a glance.' },
+              ].map((item) => (
+                <div key={item.label} className="bg-gray-800 rounded-xl p-4">
+                  <h4 className="text-sm font-semibold text-gray-200">{item.label}</h4>
+                  <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </Prose>
+        </div>
       </section>
 
       {/* ── Roadmap ── */}
       <section className="space-y-4">
         <SectionHeading>What's Coming Next</SectionHeading>
-        <Prose>
-          <p>
-            This app is under active development. Here's what we're working on for future releases:
-          </p>
-          <div className="space-y-3">
-            {[
-              {
-                status: 'planned',
-                title: 'Graduate Outcomes',
-                desc: 'Employment rates, salary data, and whether graduates end up in jobs related to their degree — sourced from the Graduate Outcomes Survey.',
-              },
-              {
-                status: 'planned',
-                title: 'Student Satisfaction',
-                desc: 'How students rate their teaching quality, learning resources, and overall experience — from the Student Experience Survey.',
-              },
-              {
-                status: 'planned',
-                title: 'ATAR & Entry Requirements',
-                desc: 'Selection rank data so you can see the typical entry scores alongside outcome data — helping you find unis where you\'re likely to get in and succeed.',
-              },
-              {
-                status: 'planned',
-                title: 'Course-level Fees & HELP Debt',
-                desc: 'Student contribution amounts and expected HELP debt by course, so you can weigh costs against completion likelihood.',
-              },
-              {
-                status: 'planned',
-                title: 'Scholarships & Support Programs',
-                desc: 'Information on financial support, equity scholarships, and student services available at each university.',
-              },
-              {
-                status: 'exploring',
-                title: 'International Student Data',
-                desc: 'Completion and retention data for international students, where available in the Department\'s collections.',
-              },
-            ].map((item) => (
-              <div key={item.title} className="bg-gray-900 rounded-xl p-4 flex gap-3">
-                <div className="shrink-0 mt-0.5">
-                  <span className={`inline-block w-2 h-2 rounded-full ${item.status === 'planned' ? 'bg-indigo-500' : 'bg-gray-600'}`} />
+        <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
+          <Prose>
+            <p>
+              This app is under active development. Here's what we're working on for future releases:
+            </p>
+            <div className="space-y-3">
+              {[
+                {
+                  status: 'planned',
+                  title: 'Graduate Outcomes',
+                  desc: 'Employment rates, salary data, and whether graduates end up in jobs related to their degree — sourced from the Graduate Outcomes Survey.',
+                },
+                {
+                  status: 'planned',
+                  title: 'Student Satisfaction',
+                  desc: 'How students rate their teaching quality, learning resources, and overall experience — from the Student Experience Survey.',
+                },
+                {
+                  status: 'planned',
+                  title: 'ATAR & Entry Requirements',
+                  desc: 'Selection rank data so you can see the typical entry scores alongside outcome data — helping you find unis where you\'re likely to get in and succeed.',
+                },
+                {
+                  status: 'planned',
+                  title: 'Course-level Fees & HELP Debt',
+                  desc: 'Student contribution amounts and expected HELP debt by course, so you can weigh costs against completion likelihood.',
+                },
+                {
+                  status: 'planned',
+                  title: 'Scholarships & Support Programs',
+                  desc: 'Information on financial support, equity scholarships, and student services available at each university.',
+                },
+                {
+                  status: 'exploring',
+                  title: 'International Student Data',
+                  desc: 'Completion and retention data for international students, where available in the Department\'s collections.',
+                },
+              ].map((item) => (
+                <div key={item.title} className="bg-gray-800 rounded-xl p-4 flex gap-3">
+                  <div className="shrink-0 mt-0.5">
+                    <span className={`inline-block w-2 h-2 rounded-full ${item.status === 'planned' ? 'bg-indigo-500' : 'bg-gray-600'}`} />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-200">{item.title}</h4>
+                    <p className="text-xs text-gray-500 mt-1 leading-relaxed">{item.desc}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-200">{item.title}</h4>
-                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">{item.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <p className="text-xs text-gray-600 italic">
-            Have a suggestion? We'd love to hear what data would be most useful to you.
-          </p>
-        </Prose>
+              ))}
+            </div>
+            <p className="text-xs text-gray-600 italic">
+              Have a suggestion? We'd love to hear what data would be most useful to you.
+            </p>
+          </Prose>
+        </div>
       </section>
 
       {/* ── Disclaimer ── */}
