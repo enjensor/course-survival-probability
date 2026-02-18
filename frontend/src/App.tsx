@@ -322,17 +322,21 @@ export default function App() {
                   </p>
                 </div>
 
-                {/* Australia state map */}
-                <div className="mt-10">
-                  <p className="text-center text-sm text-gray-500 mb-4">
-                    Start by selecting a state or territory
+                {/* Getting started instruction */}
+                <div className="mt-10 mb-4 text-center">
+                  <p className="text-sm text-gray-400 leading-relaxed">
+                    Pick a university from the dropdown above to get started.
+                    <br className="hidden sm:inline" />{' '}
+                    Or tap a state on the map below to narrow the list first.
                   </p>
-                  <AustraliaMap
-                    selectedState={selectedState}
-                    onStateSelect={handleStateSelect}
-                    stateCounts={stateCounts}
-                  />
                 </div>
+
+                {/* Australia state map */}
+                <AustraliaMap
+                  selectedState={selectedState}
+                  onStateSelect={handleStateSelect}
+                  stateCounts={stateCounts}
+                />
 
                 {/* Feature cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-12">
@@ -364,11 +368,6 @@ export default function App() {
                     </p>
                   </button>
                 </div>
-
-                {/* Prompt */}
-                <p className="text-center text-sm text-gray-600 mt-10">
-                  Select a university above to begin.
-                </p>
               </div>
             )}
 

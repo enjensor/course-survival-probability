@@ -191,11 +191,7 @@ export default function AustraliaMap({ selectedState, onStateSelect, stateCounts
               clear
             </button>
           </p>
-        ) : (
-          <p className="text-xs text-gray-600">
-            Click a state or territory to filter universities
-          </p>
-        )}
+        ) : null}
       </div>
     </div>
   )
