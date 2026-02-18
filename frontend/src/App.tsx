@@ -273,6 +273,22 @@ export default function App() {
       </section>
       )}
 
+      {/* Compact disclaimer */}
+      {mode !== 'about' && (
+        <div className="max-w-5xl mx-auto px-4">
+          <p className="text-xs text-amber-700/80 leading-relaxed">
+            This app is in development and provided for informational purposes only — not professional advice.
+            Data sourced from the Dept of Education; may contain errors or omissions.{' '}
+            <button
+              onClick={() => setMode('about')}
+              className="underline hover:text-amber-500 transition-colors"
+            >
+              Full disclaimer
+            </button>
+          </p>
+        </div>
+      )}
+
       {/* Content */}
       <main className="max-w-5xl mx-auto px-4 pt-6 pb-12">
 

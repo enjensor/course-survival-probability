@@ -219,6 +219,41 @@ export default function AboutPage() {
         </Prose>
       </section>
 
+      {/* ── Disclaimer ── */}
+      <section className="space-y-4">
+        <SectionHeading>Important Disclaimer</SectionHeading>
+        <div className="bg-amber-950/20 rounded-2xl p-5 border border-amber-800/30 space-y-3">
+          <p className="text-sm text-gray-400 leading-relaxed text-justify">
+            <strong className="text-amber-400/90">This app is in active development.</strong>{' '}
+            While every effort has been made to process and present the data accurately,
+            this tool is provided on an &ldquo;as is&rdquo; basis. There may be errors,
+            omissions, or misinterpretations in how the data is displayed.
+          </p>
+          <p className="text-sm text-gray-400 leading-relaxed text-justify">
+            <strong className="text-gray-300">This is not professional advice.</strong>{' '}
+            The information presented here is for general informational purposes only
+            and should not be treated as a substitute for professional educational guidance,
+            career counselling, or official university information. Always verify details
+            directly with the relevant institution before making decisions about your education.
+          </p>
+          <p className="text-sm text-gray-400 leading-relaxed text-justify">
+            <strong className="text-gray-300">Data limitations.</strong>{' '}
+            All data is sourced from the Australian Department of Education's Higher Education
+            Statistics Collection. It is subject to the limitations, definitions, and collection
+            methodologies of the original source. Some data points may be suppressed, unavailable,
+            or not directly comparable across institutions due to differences in student cohort
+            size, institutional structure, or reporting practices. Historical data reflects the
+            year of publication and may not represent current conditions.
+          </p>
+          <p className="text-sm text-gray-400 leading-relaxed text-justify">
+            <strong className="text-gray-300">No affiliation.</strong>{' '}
+            This app is an independent project. It is not affiliated with, endorsed by, or
+            connected to the Australian Department of Education, any Australian university,
+            or any government agency.
+          </p>
+        </div>
+      </section>
+
       {/* ── Closing principle ── */}
       <div className="bg-gray-900/60 rounded-2xl p-6 border border-gray-800 text-center">
         <p className="text-sm text-gray-400 leading-relaxed">
