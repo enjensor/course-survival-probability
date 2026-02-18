@@ -168,6 +168,19 @@ export default function AboutPage() {
                 </div>
               ))}
             </div>
+            <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700 mt-1">
+              <p className="text-xs font-semibold text-gray-400 mb-1.5">A note on field-of-study granularity</p>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                The Department publishes field-of-study data at the <strong className="text-gray-400">broad field</strong> level
+                only — the 12 categories defined by the Australian Standard Classification of Education (ASCED).
+                This means a field like &ldquo;Health&rdquo; covers everything from nursing and midwifery to medicine
+                and veterinary science. Narrower breakdowns (the ~70 &ldquo;narrow fields&rdquo; and ~355
+                &ldquo;detailed fields&rdquo; in ASCED) are not available in the published statistics. The
+                Department's interactive data tool (uCube) has been retired, and narrow-field data by institution
+                can only be obtained through a formal data request. We'll incorporate finer-grained field data
+                if and when it becomes publicly available.
+              </p>
+            </div>
           </Prose>
         </div>
       </section>
