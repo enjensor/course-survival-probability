@@ -756,7 +756,7 @@ export default function DataIntegrityPage() {
 
       {/* Footer note */}
       <div className="text-center pb-4">
-        <p className="text-xs text-gray-600 leading-relaxed">
+        <p className="text-xs text-gray-500 leading-relaxed">
           If you spot an error or have a question about any metric, please get in touch
           via the About page. We take data integrity seriously.
         </p>

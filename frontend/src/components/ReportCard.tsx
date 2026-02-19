@@ -73,18 +73,18 @@ function MiniSparkline({
         <span className="text-xs text-gray-500">{label}</span>
         <span className={`text-xs font-medium ${growthColor}`}>
           {growthArrow} {Math.abs(growthPct).toFixed(0)}%
-          <span className="text-gray-600 ml-1">
+          <span className="text-gray-500 ml-1">
             ({data[0].year}-{data[data.length - 1].year})
           </span>
         </span>
       </div>
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-12">
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-12" role="img" aria-label={`${label}: ${first.toLocaleString()} in ${data[0].year} to ${last.toLocaleString()} in ${data[data.length - 1].year}, ${growthPct >= 0 ? 'up' : 'down'} ${Math.abs(growthPct).toFixed(0)} percent`}>
         <path d={linePath} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         {/* Start and end dots */}
         <circle cx={points[0].x} cy={points[0].y} r="2.5" fill={color} />
         <circle cx={points[points.length - 1].x} cy={points[points.length - 1].y} r="2.5" fill={color} />
       </svg>
-      <div className="flex justify-between text-xs text-gray-600 -mt-1">
+      <div className="flex justify-between text-xs text-gray-500 -mt-1">
         <span>{first.toLocaleString()}</span>
         <span>{last.toLocaleString()}</span>
       </div>
@@ -231,7 +231,7 @@ function CourseLevelChart({
                     <td className="text-right py-1.5 tabular-nums">
                       <span className="text-gray-500">{natPct?.toFixed(1)}%</span>
                       {diff !== null && Math.abs(diff) >= 1 && (
-                        <span className={`ml-1 text-[10px] ${diff > 0 ? 'text-indigo-400' : 'text-gray-600'}`}>
+                        <span className={`ml-1 text-[10px] ${diff > 0 ? 'text-indigo-400' : 'text-gray-500'}`}>
                           {diff > 0 ? '+' : ''}{diff.toFixed(0)}
                         </span>
                       )}
@@ -264,7 +264,7 @@ function CourseLevelChart({
       {/* Efficiency note */}
       {efficiency && (
         <div className="pt-1">
-          <p className="text-xs text-gray-600 leading-relaxed">
+          <p className="text-xs text-gray-500 leading-relaxed">
             <span className="text-gray-400 font-medium">Graduates-to-enrolled ratio:</span>{' '}
             {efficiency.overall}% overall.
             This is a cross-sectional snapshot (graduates in {enrolment.year} vs students enrolled in {enrolment.year}),
@@ -330,7 +330,7 @@ function StaffRatioCard({ data }: { data: StaffRatioData }) {
             {improving ? '↓' : '↑'} {Math.abs(diff).toFixed(1)}
           </span>
         </div>
-        <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-12">
+        <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-12" role="img" aria-label={`Students per academic staff trend: ${first.toFixed(1)} in ${trend[0].year} to ${last.toFixed(1)} in ${trend[trend.length - 1].year}, ${improving ? 'improving' : 'worsening'}`}>
           <path d={linePath} fill="none" stroke={strokeColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           <circle cx={points[0].x} cy={points[0].y} r="2.5" fill={strokeColor} />
           <circle cx={points[points.length - 1].x} cy={points[points.length - 1].y} r="2.5" fill={strokeColor} />
@@ -343,10 +343,10 @@ function StaffRatioCard({ data }: { data: StaffRatioData }) {
             />
           )}
         </svg>
-        <div className="flex justify-between text-xs text-gray-600 -mt-1">
+        <div className="flex justify-between text-xs text-gray-500 -mt-1">
           <span>{first.toFixed(1)}</span>
           {natAvg !== null && (
-            <span className="text-gray-600">Natl avg: {natAvg.toFixed(1)}</span>
+            <span className="text-gray-500">Natl avg: {natAvg.toFixed(1)}</span>
           )}
           <span>{last.toFixed(1)}</span>
         </div>
@@ -375,7 +375,7 @@ function StaffRatioCard({ data }: { data: StaffRatioData }) {
             </span>
           </div>
           {natAvg !== null && (
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-gray-500">
               Natl avg: {natAvg.toFixed(1)}{' '}
               <span className={betterThanAvg ? 'text-emerald-400' : 'text-red-400'}>
                 ({betterThanAvg ? '↓' : '↑'} {Math.abs(data.academic_ratio - natAvg).toFixed(1)} {betterThanAvg ? 'fewer' : 'more'})
@@ -391,11 +391,11 @@ function StaffRatioCard({ data }: { data: StaffRatioData }) {
             {data.non_academic_ratio !== null ? data.non_academic_ratio.toFixed(1) : 'N/A'}
           </p>
           {data.national_avg_non_academic !== null && (
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-gray-500">
               Natl avg: {data.national_avg_non_academic.toFixed(1)}
             </p>
           )}
-          <p className="text-xs text-gray-700">{data.year} data</p>
+          <p className="text-xs text-gray-500">{data.year} data</p>
         </div>
 
         {/* Raw counts */}
@@ -428,7 +428,7 @@ function StaffRatioCard({ data }: { data: StaffRatioData }) {
       {trendSvg}
 
       {/* Interpretation note */}
-      <p className="text-xs text-gray-600 leading-relaxed">
+      <p className="text-xs text-gray-500 leading-relaxed">
         <span className="text-gray-400 font-medium">What this means:</span>{' '}
         A ratio of {data.academic_ratio.toFixed(0)} means roughly {data.academic_ratio.toFixed(0)} full-time-equivalent
         students for every academic staff member (including casuals).{' '}
@@ -483,12 +483,12 @@ function IntlTrendMini({ data }: { data: Array<{ year: number; rate: number }> }
           {diffArrow} {Math.abs(diff).toFixed(1)} pp
         </span>
       </div>
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-12">
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-12" role="img" aria-label={`International dropout rate trend: ${first}% in ${data[0].year} to ${last}% in ${data[data.length - 1].year}`}>
         <path d={linePath} fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         <circle cx={points[0].x} cy={points[0].y} r="2.5" fill="#f87171" />
         <circle cx={points[points.length - 1].x} cy={points[points.length - 1].y} r="2.5" fill="#f87171" />
       </svg>
-      <div className="flex justify-between text-xs text-gray-600 -mt-1">
+      <div className="flex justify-between text-xs text-gray-500 -mt-1">
         <span>{first}%</span>
         <span>{last}%</span>
       </div>
@@ -528,7 +528,7 @@ export default function ReportCard({ data }: Props) {
           <SectionLabel>
             Field-specific data: {data.field!.name}
             {fc.year && (
-              <span className="ml-2 text-gray-600 normal-case tracking-normal font-normal">
+              <span className="ml-2 text-gray-500 normal-case tracking-normal font-normal">
                 — {fc.year} data
               </span>
             )}
@@ -541,28 +541,28 @@ export default function ReportCard({ data }: Props) {
                 {fc.enrolment?.toLocaleString() ?? 'N/A'}
               </p>
               <p className="text-xs text-gray-500 mt-1">Enrolled</p>
-              {fc.year && <p className="text-xs text-gray-600">{fc.year}</p>}
+              {fc.year && <p className="text-xs text-gray-500">{fc.year}</p>}
             </div>
             <div className="bg-gray-900 rounded-xl p-4 text-center">
               <p className="text-xl font-bold text-emerald-400">
                 {fc.completions?.toLocaleString() ?? 'N/A'}
               </p>
               <p className="text-xs text-gray-500 mt-1">Graduates</p>
-              {fc.year && <p className="text-xs text-gray-600">{fc.year}</p>}
+              {fc.year && <p className="text-xs text-gray-500">{fc.year}</p>}
             </div>
             <div className="bg-gray-900 rounded-xl p-4 text-center">
               <p className="text-xl font-bold text-amber-400">
                 {fc.completion_ratio !== null ? `${fc.completion_ratio}%` : 'N/A'}
               </p>
               <p className="text-xs text-gray-500 mt-1">Graduates per 100 enrolled</p>
-              {fc.year && <p className="text-xs text-gray-600">{fc.year}</p>}
+              {fc.year && <p className="text-xs text-gray-500">{fc.year}</p>}
             </div>
             <div className="bg-gray-900 rounded-xl p-4 text-center">
               <p className="text-xl font-bold text-gray-100">
                 {fc.field_share_pct !== null ? `${fc.field_share_pct}%` : 'N/A'}
               </p>
               <p className="text-xs text-gray-500 mt-1">% of uni's students</p>
-              {fc.year && <p className="text-xs text-gray-600">{fc.year}</p>}
+              {fc.year && <p className="text-xs text-gray-500">{fc.year}</p>}
             </div>
           </div>
 
@@ -637,7 +637,7 @@ export default function ReportCard({ data }: Props) {
           <SectionLabel>
             Course Level Mix
             {data.course_level.enrolment.year && (
-              <span className="ml-2 text-gray-600 normal-case tracking-normal font-normal">
+              <span className="ml-2 text-gray-500 normal-case tracking-normal font-normal">
                 — {data.course_level.enrolment.year} data
               </span>
             )}
@@ -656,7 +656,7 @@ export default function ReportCard({ data }: Props) {
         <>
           <SectionLabel>
             Teaching Intensity
-            <span className="ml-2 text-gray-600 normal-case tracking-normal font-normal">
+            <span className="ml-2 text-gray-500 normal-case tracking-normal font-normal">
               — student-staff ratios, {data.staff_ratio.year} data
             </span>
           </SectionLabel>
@@ -694,12 +694,12 @@ export default function ReportCard({ data }: Props) {
                   )}
                 </div>
                 {data.international.attrition.national_avg !== null && (
-                  <p className="text-xs text-gray-600">
+                  <p className="text-xs text-gray-500">
                     National avg (intl): {data.international.attrition.national_avg}%
                   </p>
                 )}
                 {data.international.attrition.year && (
-                  <p className="text-xs text-gray-700">{data.international.attrition.year} data</p>
+                  <p className="text-xs text-gray-500">{data.international.attrition.year} data</p>
                 )}
               </div>
 
@@ -722,12 +722,12 @@ export default function ReportCard({ data }: Props) {
                   )}
                 </div>
                 {data.international.retention.national_avg !== null && (
-                  <p className="text-xs text-gray-600">
+                  <p className="text-xs text-gray-500">
                     National avg (intl): {data.international.retention.national_avg}%
                   </p>
                 )}
                 {data.international.retention.year && (
-                  <p className="text-xs text-gray-700">{data.international.retention.year} data</p>
+                  <p className="text-xs text-gray-500">{data.international.retention.year} data</p>
                 )}
               </div>
 
@@ -750,12 +750,12 @@ export default function ReportCard({ data }: Props) {
                   )}
                 </div>
                 {data.international.success.national_avg !== null && (
-                  <p className="text-xs text-gray-600">
+                  <p className="text-xs text-gray-500">
                     National avg (intl): {data.international.success.national_avg}%
                   </p>
                 )}
                 {data.international.success.year && (
-                  <p className="text-xs text-gray-700">{data.international.success.year} data</p>
+                  <p className="text-xs text-gray-500">{data.international.success.year} data</p>
                 )}
               </div>
             </div>

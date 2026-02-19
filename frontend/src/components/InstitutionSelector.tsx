@@ -112,6 +112,12 @@ export default function InstitutionSelector({ institutions, value, onChange, sta
       </label>
       <input
         type="text"
+        role="combobox"
+        aria-expanded={open && filtered.length > 0}
+        aria-haspopup="listbox"
+        aria-controls="institution-listbox"
+        aria-autocomplete="list"
+        aria-label={stateFilter ? `Search institutions in ${stateFilter}` : 'Search for an institution'}
         className="w-full rounded-lg bg-gray-800 border border-gray-700 px-4 py-2.5 text-sm
                    text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500
                    focus:border-transparent transition"
@@ -130,11 +136,18 @@ export default function InstitutionSelector({ institutions, value, onChange, sta
         }}
       />
       {open && filtered.length > 0 && (
-        <ul className="absolute z-50 mt-1 w-full max-h-64 overflow-auto rounded-lg bg-gray-800
-                       border border-gray-700 shadow-xl">
+        <ul
+          id="institution-listbox"
+          role="listbox"
+          aria-label="Institutions"
+          className="absolute z-50 mt-1 w-full max-h-64 overflow-auto rounded-lg bg-gray-800
+                       border border-gray-700 shadow-xl"
+        >
           {filtered.slice(0, 50).map((inst) => (
             <li
               key={inst.id}
+              role="option"
+              aria-selected={inst.id === value}
               className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-700 transition
                 ${inst.id === value ? 'bg-indigo-900/40 text-indigo-300' : 'text-gray-200'}`}
               onClick={() => {

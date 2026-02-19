@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+  </defs>
+  <!-- Hexagonal background -->
+  <path d="M16 2 L28.5 9.25 L28.5 22.75 L16 30 L3.5 22.75 L3.5 9.25 Z" fill="url(#g)" rx="2"/>
+  <!-- Stylised graduation cap / upward path -->
+  <path d="M10 20 L16 12 L22 20" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="16" cy="11" r="1.5" fill="#fff"/>
+</svg>

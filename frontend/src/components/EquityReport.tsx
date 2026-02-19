@@ -36,7 +36,7 @@ function supportStyle(label: string) {
 /* ── Gap indicator ──────────────────────────────────────────────────── */
 
 function GapBadge({ gap }: { gap: number | null }) {
-  if (gap === null) return <span className="text-xs text-gray-600">N/A</span>
+  if (gap === null) return <span className="text-xs text-gray-500">N/A</span>
   const positive = gap >= 0
   const color = positive ? 'text-emerald-400' : 'text-red-400'
   const arrow = positive ? '▲' : '▼'
@@ -56,7 +56,7 @@ function MetricBar({ metric, measure }: { metric: EquityGroupMetric; measure: st
       <div className="py-1.5">
         <div className="flex items-center justify-between mb-1">
           <span className="text-xs text-gray-500">{info.label}</span>
-          <span className="text-xs text-gray-600">No data</span>
+          <span className="text-xs text-gray-500">No data</span>
         </div>
         <div className="h-2 rounded-full bg-gray-800" />
       </div>
@@ -99,13 +99,13 @@ function MetricBar({ metric, measure }: { metric: EquityGroupMetric; measure: st
         )}
       </div>
       <div className="flex items-center justify-between mt-0.5">
-        <span className="text-xs text-gray-600">0%</span>
-        <span className="text-xs text-gray-600">
+        <span className="text-xs text-gray-500">0%</span>
+        <span className="text-xs text-gray-500">
           Natl avg: {avg.toFixed(1)}%
         </span>
       </div>
       {measure === 'attainment' && (
-        <p className="text-xs text-gray-600 italic mt-0.5">Representation share, not completion rate</p>
+        <p className="text-xs text-gray-500 italic mt-0.5">Representation share, not completion rate</p>
       )}
     </div>
   )
@@ -141,18 +141,18 @@ function RetentionSparkline({ trend }: { trend: EquityGroupData['trend'] }) {
   return (
     <div className="mt-2">
       <div className="flex items-center justify-between mb-0.5">
-        <span className="text-xs text-gray-600">Return rate trend</span>
+        <span className="text-xs text-gray-500">Return rate trend</span>
         <span className={`text-xs font-medium ${up ? 'text-emerald-400' : 'text-red-400'}`}>
           {up ? '↑' : '↓'} {Math.abs(last - first).toFixed(1)} pts
-          <span className="text-gray-600 ml-1">({years[0]}–{years[years.length - 1]})</span>
+          <span className="text-gray-500 ml-1">({years[0]}–{years[years.length - 1]})</span>
         </span>
       </div>
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-9">
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-9" role="img" aria-label={`Retention trend: ${first.toFixed(1)}% in ${years[0]} to ${last.toFixed(1)}% in ${years[years.length - 1]}, ${up ? 'improving' : 'declining'}`}>
         <path d={linePath} fill="none" stroke={up ? '#34d399' : '#f87171'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         <circle cx={points[0].x} cy={points[0].y} r="2" fill={up ? '#34d399' : '#f87171'} />
         <circle cx={points[points.length - 1].x} cy={points[points.length - 1].y} r="2" fill={up ? '#34d399' : '#f87171'} />
       </svg>
-      <div className="flex justify-between text-xs text-gray-600 -mt-0.5">
+      <div className="flex justify-between text-xs text-gray-500 -mt-0.5">
         <span>{first.toFixed(1)}%</span>
         <span>{last.toFixed(1)}%</span>
       </div>
@@ -242,7 +242,7 @@ function BaselineCard({ allDomestic }: { allDomestic: EquityReportData['all_dome
               </p>
               <p className="text-xs text-gray-500">{info.label}</p>
               {metric.national_avg !== null && (
-                <p className="text-xs text-gray-600 mt-0.5">
+                <p className="text-xs text-gray-500 mt-0.5">
                   Natl: {metric.national_avg.toFixed(1)}%
                 </p>
               )}
@@ -307,7 +307,7 @@ export default function EquityReport({ data }: Props) {
           <span className="text-gray-700">|</span>
           <span className="text-indigo-400">Equity Performance Report</span>
         </div>
-        <p className="text-xs text-gray-600 mt-1.5">
+        <p className="text-xs text-gray-500 mt-1.5">
           Data years — Return rate: {latestYears.retention ?? 'N/A'}
           {' · '}Subject pass rate: {latestYears.success ?? 'N/A'}
           {' · '}Graduate share: {latestYears.attainment ?? 'N/A'}
@@ -375,7 +375,7 @@ export default function EquityReport({ data }: Props) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <EquityGroupCard groupKey="remote" groupData={remoteData} />
-              <p className="text-xs text-gray-600 mt-2">
+              <p className="text-xs text-gray-500 mt-2">
                 Remote student cohorts are often very small, so rates may fluctuate significantly between years.
               </p>
             </div>
@@ -384,7 +384,7 @@ export default function EquityReport({ data }: Props) {
       )}
 
       {/* Source note */}
-      <p className="text-xs text-gray-600 italic pt-2">
+      <p className="text-xs text-gray-500 italic pt-2">
         Source: Department of Education, Section 16 — Equity Performance Data.
         First-generation and mature-age student data are not included in national equity statistics.
       </p>

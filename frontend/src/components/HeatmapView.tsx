@@ -99,12 +99,12 @@ function SummaryBar({ summary, fieldName }: { summary: HeatmapData['summary']; f
         <div className="rounded-lg bg-emerald-900/20 border border-emerald-800 px-3 py-2">
           <span className="text-emerald-500 font-medium">Safest: </span>
           <span className="text-gray-300">{summary.best_institution_name}</span>
-          <span className="text-gray-600 ml-1">(score {summary.min_risk.toFixed(1)})</span>
+          <span className="text-gray-500 ml-1">(score {summary.min_risk.toFixed(1)})</span>
         </div>
         <div className="rounded-lg bg-red-900/20 border border-red-800 px-3 py-2">
           <span className="text-red-500 font-medium">Riskiest: </span>
           <span className="text-gray-300">{summary.worst_institution_name}</span>
-          <span className="text-gray-600 ml-1">(score {summary.max_risk.toFixed(1)})</span>
+          <span className="text-gray-500 ml-1">(score {summary.max_risk.toFixed(1)})</span>
         </div>
       </div>
 
@@ -241,7 +241,7 @@ export default function HeatmapView({ data, onSelectInstitution, stateFilter }: 
           >
             <div className="flex items-center gap-3">
               {/* Rank */}
-              <span className="text-xs font-mono text-gray-600 w-6 shrink-0 text-right">
+              <span className="text-xs font-mono text-gray-500 w-6 shrink-0 text-right">
                 {idx + 1}
               </span>
 
@@ -291,7 +291,7 @@ export default function HeatmapView({ data, onSelectInstitution, stateFilter }: 
         ))}
       </div>
 
-      <p className="text-xs text-gray-600 pt-2">
+      <p className="text-xs text-gray-500 pt-2">
         Risk score = dropout rate &times; (1 &minus; graduation rate). Lower is safer.
         Click any row to see that institution's full report with this field pre-selected.
       </p>

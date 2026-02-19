@@ -61,7 +61,7 @@ export default function RiskBadge({ data }: Props) {
                     style={{ width: `${Math.min(data.latest_rate, 100)}%` }}
                   />
                 </div>
-                <div className="flex justify-between mt-1 text-xs text-gray-600">
+                <div className="flex justify-between mt-1 text-xs text-gray-500">
                   <span>0%</span>
                   <span>50%</span>
                   <span>100%</span>
@@ -71,7 +71,7 @@ export default function RiskBadge({ data }: Props) {
           </div>
 
           {data.latest_year && (
-            <p className="mt-3 text-xs text-gray-600">Data year: {data.latest_year}</p>
+            <p className="mt-3 text-xs text-gray-500">Data year: {data.latest_year}</p>
           )}
         </>
       ) : (

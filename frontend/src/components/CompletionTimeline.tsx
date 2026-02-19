@@ -43,7 +43,7 @@ function Bar({ label, pct, nationalAvg, period }: BarProps) {
           />
         )}
       </div>
-      <div className="flex justify-between text-xs text-gray-600">
+      <div className="flex justify-between text-xs text-gray-500">
         <span>{period ?? ''}</span>
         {nationalAvg !== null && <span>Nat. avg: {nationalAvg}%</span>}
       </div>

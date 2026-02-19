@@ -137,7 +137,7 @@ function ReportGuide() {
               </tr>
             </tbody>
           </table>
-          <p className="mt-3 italic text-gray-600">
+          <p className="mt-3 italic text-gray-500">
             Data follows the Department of Education's official definitions under the Higher Education Support Act 2003.
           </p>
         </div>
@@ -206,7 +206,7 @@ function EquityGuide() {
             Possible reasons: part-time study stretching out timelines, moving to a different uni mid-course,
             financial or personal disruptions over longer periods, or changes in course structure.
           </p>
-          <p className="italic text-gray-600">
+          <p className="italic text-gray-500">
             Source: Department of Education, Section 16 — Equity Performance Data.
           </p>
         </div>
@@ -313,7 +313,7 @@ function HeatmapGuide() {
               </tr>
             </tbody>
           </table>
-          <p className="mt-3 italic text-gray-600">
+          <p className="mt-3 italic text-gray-500">
             The risk score penalises institutions that have both a high dropout rate and few graduates. An institution with
             high dropout but lots of graduates will score lower (safer) than one with similar dropout but few graduates.
           </p>

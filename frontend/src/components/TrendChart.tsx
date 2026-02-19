@@ -58,7 +58,7 @@ export default function TrendChart({ data }: Props) {
       </div>
 
       {/* Sparkline */}
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" preserveAspectRatio="none">
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" preserveAspectRatio="none" role="img" aria-label={`Dropout trend chart: ${dir.text}, ${data.slope > 0 ? '+' : ''}${data.slope} points per year over ${data.years[0]} to ${data.years[data.years.length - 1]}`}>
         {/* Grid lines */}
         {[0.25, 0.5, 0.75].map((frac) => (
           <line
@@ -82,7 +82,7 @@ export default function TrendChart({ data }: Props) {
       </svg>
 
       {/* Year labels */}
-      <div className="flex justify-between text-xs text-gray-600 mt-1 px-2">
+      <div className="flex justify-between text-xs text-gray-500 mt-1 px-2">
         {data.years.map((y) => (
           <span key={y}>{y}</span>
         ))}

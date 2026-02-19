@@ -5,7 +5,7 @@ interface Props {
 }
 
 function gaugeColor(pct: number | null): string {
-  if (pct === null) return 'text-gray-600'
+  if (pct === null) return 'text-gray-500'
   if (pct >= 70) return 'text-emerald-400'
   if (pct >= 40) return 'text-amber-400'
   return 'text-red-400'
@@ -48,7 +48,7 @@ export default function CompletionGauge({ data }: Props) {
 
       {/* SVG Gauge */}
       <div className="relative w-36 h-36">
-        <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
+        <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90" role="img" aria-label={`Completion probability: ${pct !== null ? `${pct}% at ${label} window` : 'not available'}`}>
           <circle cx="60" cy="60" r={radius} fill="none" stroke="#1f2937" strokeWidth="10" />
           <circle
             cx="60"
@@ -132,7 +132,7 @@ export default function CompletionGauge({ data }: Props) {
       )}
 
       {data.cohort_period && (
-        <p className="mt-2 text-xs text-gray-600">
+        <p className="mt-2 text-xs text-gray-500">
           Students who started in {data.cohort_period.split('-')[0]}, tracked to {data.cohort_period.split('-')[1]}
         </p>
       )}

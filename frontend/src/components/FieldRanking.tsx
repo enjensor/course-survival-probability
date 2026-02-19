@@ -91,7 +91,7 @@ export default function FieldRanking({ data, institutionId, fieldName, year }: P
     <div className="bg-gray-900 rounded-2xl p-6 space-y-5">
       <h3 className="text-sm font-medium text-gray-400">
         Graduation Rate Ranking
-        <span className="text-gray-600 font-normal ml-1">({fieldName})</span>
+        <span className="text-gray-500 font-normal ml-1">({fieldName})</span>
       </h3>
 
       {/* Position badge + ratio comparison */}
@@ -135,7 +135,7 @@ export default function FieldRanking({ data, institutionId, fieldName, year }: P
         <RankTable entries={bottom_5} currentId={institutionId} label="Lowest graduation rate" />
       </div>
 
-      <p className="text-xs text-gray-600">
+      <p className="text-xs text-gray-500">
         Graduation rate = graduates per 100 enrolled students{year ? ` (${year} data)` : ''}. Institutions with fewer than 50 students excluded.
       </p>
     </div>

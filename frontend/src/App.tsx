@@ -177,8 +177,10 @@ export default function App() {
 
             {/* Mode switcher — scrollable on mobile, pill on desktop */}
             <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide">
-              <div className="flex items-center gap-1 bg-gray-900 rounded-full p-1 border border-gray-800 w-max sm:w-auto">
+              <div role="tablist" aria-label="View mode" className="flex items-center gap-1 bg-gray-900 rounded-full p-1 border border-gray-800 w-max sm:w-auto">
                 <button
+                  role="tab"
+                  aria-selected={mode === 'report'}
                   onClick={() => setMode('report')}
                   className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap
                     ${mode === 'report'
@@ -188,6 +190,8 @@ export default function App() {
                   Report
                 </button>
                 <button
+                  role="tab"
+                  aria-selected={mode === 'equity'}
                   onClick={() => setMode('equity')}
                   className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap
                     ${mode === 'equity'
@@ -197,6 +201,8 @@ export default function App() {
                   Equity
                 </button>
                 <button
+                  role="tab"
+                  aria-selected={mode === 'heatmap'}
                   onClick={() => setMode('heatmap')}
                   className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap
                     ${mode === 'heatmap'
@@ -206,6 +212,8 @@ export default function App() {
                   Fields
                 </button>
                 <button
+                  role="tab"
+                  aria-selected={mode === 'methodology'}
                   onClick={() => setMode('methodology')}
                   className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap
                     ${mode === 'methodology'
@@ -215,6 +223,8 @@ export default function App() {
                   Methodology
                 </button>
                 <button
+                  role="tab"
+                  aria-selected={mode === 'about'}
                   onClick={() => setMode('about')}
                   className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap
                     ${mode === 'about'
@@ -264,21 +274,21 @@ export default function App() {
                 &times;
               </button>
             </span>
-            <span className="text-xs text-gray-600">&middot; showing state-level results</span>
+            <span className="text-xs text-gray-500">&middot; showing state-level results</span>
           </div>
         )}
         {mode === 'heatmap' && selectedField === null && !selectedState && (
-          <p className="text-xs text-gray-600 mt-2">
+          <p className="text-xs text-gray-500 mt-2">
             Select a field of study above to see the risk heatmap for all institutions.
           </p>
         )}
         {mode === 'heatmap' && selectedField === null && selectedState && (
-          <p className="text-xs text-gray-600 mt-2">
+          <p className="text-xs text-gray-500 mt-2">
             Select a field of study above to see the risk heatmap for {selectedState} institutions.
           </p>
         )}
         {mode === 'equity' && selectedInst === null && (
-          <p className="text-xs text-gray-600 mt-2">
+          <p className="text-xs text-gray-500 mt-2">
             Select an institution above to see how it supports students from different equity groups.
           </p>
         )}
@@ -347,7 +357,7 @@ export default function App() {
 
                 {/* Core philosophy */}
                 <div className="text-center space-y-3">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-500">
                     It's not about which uni has the flashiest reputation.
                   </p>
                   <p className="text-base font-semibold text-indigo-400">
@@ -422,50 +432,50 @@ export default function App() {
                         <tr className="border-b border-gray-800/50">
                           <td className="py-2">Enrolments &amp; completions</td>
                           <td className="text-right py-2 tabular-nums text-emerald-400 font-medium">2024</td>
-                          <td className="text-right py-2 hidden sm:table-cell text-gray-600">Sections 1, 2, 14</td>
-                          <td className="text-right py-2 text-gray-600 tabular-nums">~Sep 2026</td>
+                          <td className="text-right py-2 hidden sm:table-cell text-gray-500">Sections 1, 2, 14</td>
+                          <td className="text-right py-2 text-gray-500 tabular-nums">~Sep 2026</td>
                         </tr>
                         <tr className="border-b border-gray-800/50">
                           <td className="py-2">Subject pass rates</td>
                           <td className="text-right py-2 tabular-nums text-emerald-400 font-medium">2024</td>
-                          <td className="text-right py-2 hidden sm:table-cell text-gray-600">Section 15</td>
-                          <td className="text-right py-2 text-gray-600 tabular-nums">~Sep 2026</td>
+                          <td className="text-right py-2 hidden sm:table-cell text-gray-500">Section 15</td>
+                          <td className="text-right py-2 text-gray-500 tabular-nums">~Sep 2026</td>
                         </tr>
                         <tr className="border-b border-gray-800/50">
                           <td className="py-2">Equity (attainment &amp; success)</td>
                           <td className="text-right py-2 tabular-nums text-emerald-400 font-medium">2024</td>
-                          <td className="text-right py-2 hidden sm:table-cell text-gray-600">Section 16</td>
-                          <td className="text-right py-2 text-gray-600 tabular-nums">~Sep 2026</td>
+                          <td className="text-right py-2 hidden sm:table-cell text-gray-500">Section 16</td>
+                          <td className="text-right py-2 text-gray-500 tabular-nums">~Sep 2026</td>
                         </tr>
                         <tr className="border-b border-gray-800/50">
                           <td className="py-2">Dropout rate (attrition)</td>
                           <td className="text-right py-2 tabular-nums text-amber-400 font-medium">2023</td>
-                          <td className="text-right py-2 hidden sm:table-cell text-gray-600">Section 15</td>
-                          <td className="text-right py-2 text-gray-600 tabular-nums">~Sep 2026</td>
+                          <td className="text-right py-2 hidden sm:table-cell text-gray-500">Section 15</td>
+                          <td className="text-right py-2 text-gray-500 tabular-nums">~Sep 2026</td>
                         </tr>
                         <tr className="border-b border-gray-800/50">
                           <td className="py-2">Retention (came back for year 2)</td>
                           <td className="text-right py-2 tabular-nums text-amber-400 font-medium">2023</td>
-                          <td className="text-right py-2 hidden sm:table-cell text-gray-600">Section 15</td>
-                          <td className="text-right py-2 text-gray-600 tabular-nums">~Sep 2026</td>
+                          <td className="text-right py-2 hidden sm:table-cell text-gray-500">Section 15</td>
+                          <td className="text-right py-2 text-gray-500 tabular-nums">~Sep 2026</td>
                         </tr>
                         <tr className="border-b border-gray-800/50">
                           <td className="py-2">Completion cohorts</td>
                           <td className="text-right py-2 tabular-nums text-emerald-400 font-medium">2005–2024</td>
-                          <td className="text-right py-2 hidden sm:table-cell text-gray-600">Section 17</td>
-                          <td className="text-right py-2 text-gray-600 tabular-nums">~Sep 2026</td>
+                          <td className="text-right py-2 hidden sm:table-cell text-gray-500">Section 17</td>
+                          <td className="text-right py-2 text-gray-500 tabular-nums">~Sep 2026</td>
                         </tr>
                         <tr className="border-b border-gray-800/50">
                           <td className="py-2">Student-staff ratios</td>
                           <td className="text-right py-2 tabular-nums text-amber-400 font-medium">2014–2023</td>
-                          <td className="text-right py-2 hidden sm:table-cell text-gray-600">Staff Appendix 2</td>
-                          <td className="text-right py-2 text-gray-600 tabular-nums">~Sep 2026</td>
+                          <td className="text-right py-2 hidden sm:table-cell text-gray-500">Staff Appendix 2</td>
+                          <td className="text-right py-2 text-gray-500 tabular-nums">~Sep 2026</td>
                         </tr>
                         <tr>
                           <td className="py-2">Course level mix</td>
                           <td className="text-right py-2 tabular-nums text-emerald-400 font-medium">2024</td>
-                          <td className="text-right py-2 hidden sm:table-cell text-gray-600">Sections 2, 14</td>
-                          <td className="text-right py-2 text-gray-600 tabular-nums">~Sep 2026</td>
+                          <td className="text-right py-2 hidden sm:table-cell text-gray-500">Sections 2, 14</td>
+                          <td className="text-right py-2 text-gray-500 tabular-nums">~Sep 2026</td>
                         </tr>
                       </tbody>
                     </table>
@@ -475,7 +485,7 @@ export default function App() {
                       <span className="text-emerald-400">&#9679;</span> 2024 data
                       <span className="text-amber-400 ml-3">&#9679;</span> 2023 data (cohort lag — requires following year&rsquo;s re-enrolment to calculate)
                     </p>
-                    <p className="text-xs text-gray-600">
+                    <p className="text-xs text-gray-500">
                       Source: Australian Dept of Education, Higher Education Statistics — September 2025 publication.
                       All data is updated annually. The 2025 student data is expected ~September 2026.
                     </p>

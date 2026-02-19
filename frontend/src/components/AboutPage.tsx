@@ -246,7 +246,7 @@ export default function AboutPage() {
                 </div>
               ))}
             </div>
-            <p className="text-xs text-gray-600 italic">
+            <p className="text-xs text-gray-500 italic">
               Have a suggestion? We'd love to hear what data would be most useful to you.
             </p>
           </Prose>
@@ -376,7 +376,7 @@ export default function AboutPage() {
       </section>
 
       {/* ── Source attribution ── */}
-      <footer className="text-xs text-gray-600 text-center pb-4 space-y-1">
+      <footer className="text-xs text-gray-500 text-center pb-4 space-y-1">
         <p>
           Data source: Australian Department of Education — Higher Education Statistics Collection.
         </p>
