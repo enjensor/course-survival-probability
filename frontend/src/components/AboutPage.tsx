@@ -206,16 +206,6 @@ export default function AboutPage() {
               {[
                 {
                   status: 'planned',
-                  title: 'Graduate Outcomes',
-                  desc: 'Employment rates, salary data, and whether graduates end up in jobs related to their degree — sourced from the Graduate Outcomes Survey.',
-                },
-                {
-                  status: 'planned',
-                  title: 'Student Satisfaction',
-                  desc: 'How students rate their teaching quality, learning resources, and overall experience — from the Student Experience Survey.',
-                },
-                {
-                  status: 'planned',
                   title: 'ATAR & Entry Requirements',
                   desc: 'Selection rank data so you can see the typical entry scores alongside outcome data — helping you find unis where you\'re likely to get in and succeed.',
                 },
@@ -230,9 +220,19 @@ export default function AboutPage() {
                   desc: 'Information on financial support, equity scholarships, and student services available at each university.',
                 },
                 {
+                  status: 'planned',
+                  title: 'Student Satisfaction',
+                  desc: 'How students rate their teaching quality, learning resources, and overall experience — from the Student Experience Survey.',
+                },
+                {
                   status: 'exploring',
                   title: 'International Student Data',
                   desc: 'Completion and retention data for international students, where available in the Department\'s collections.',
+                },
+                {
+                  status: 'planned',
+                  title: 'Graduate Outcomes',
+                  desc: 'Employment rates, salary data, and whether graduates end up in jobs related to their degree — sourced from the Graduate Outcomes Survey.',
                 },
               ].map((item) => (
                 <div key={item.title} className="bg-gray-800 rounded-xl p-4 flex gap-3">
@@ -254,7 +254,7 @@ export default function AboutPage() {
       </section>
 
       {/* ── Disclaimer ── */}
-      <section className="space-y-4">
+      <section id="disclaimer" className="space-y-4">
         <SectionHeading>Important Disclaimer</SectionHeading>
         <div className="bg-amber-950/20 rounded-2xl p-5 border border-amber-800/30 space-y-3">
           <p className="text-sm text-gray-400 leading-relaxed text-justify">

@@ -7,10 +7,11 @@ import ReportCard from './components/ReportCard'
 import HeatmapView from './components/HeatmapView'
 import EquityReport from './components/EquityReport'
 import AboutPage from './components/AboutPage'
+import DataIntegrityPage from './components/DataIntegrityPage'
 import AustraliaMap from './components/AustraliaMap'
 import HowToRead from './components/HowToRead'
 
-type AppMode = 'report' | 'heatmap' | 'equity' | 'about'
+type AppMode = 'report' | 'heatmap' | 'equity' | 'methodology' | 'about'
 
 // Fields with insufficient completion data for heatmap
 const EXCLUDED_HEATMAP_FIELDS = new Set([11, 12, 13])
@@ -204,6 +205,15 @@ export default function App() {
                 Explore by Field
               </button>
               <button
+                onClick={() => setMode('methodology')}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors
+                  ${mode === 'methodology'
+                    ? 'bg-indigo-600 text-white'
+                    : 'text-gray-400 hover:text-gray-200'}`}
+              >
+                Methodology
+              </button>
+              <button
                 onClick={() => setMode('about')}
                 className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors
                   ${mode === 'about'
@@ -218,7 +228,7 @@ export default function App() {
       </header>
 
       {/* Selectors (hidden on About page) */}
-      {mode !== 'about' && (
+      {mode !== 'about' && mode !== 'methodology' && (
       <section className="max-w-5xl mx-auto px-4 py-6">
         <div className="flex flex-col sm:flex-row gap-4">
           {(mode === 'report' || mode === 'equity') && (
@@ -274,13 +284,18 @@ export default function App() {
       )}
 
       {/* Compact disclaimer */}
-      {mode !== 'about' && (
+      {mode !== 'about' && mode !== 'methodology' && (
         <div className="max-w-5xl mx-auto px-4">
           <p className="text-xs text-amber-700/80 leading-relaxed">
             This app is in development and provided for informational purposes only — not professional advice.
             Data sourced from the Dept of Education; may contain errors or omissions.{' '}
             <button
-              onClick={() => setMode('about')}
+              onClick={() => {
+                setMode('about')
+                setTimeout(() => {
+                  document.getElementById('disclaimer')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }, 50)
+              }}
               className="underline hover:text-amber-500 transition-colors"
             >
               Full disclaimer
@@ -308,7 +323,7 @@ export default function App() {
             )}
 
             {!loading && !error && !report && selectedInst === null && (
-              <div className="py-16 max-w-2xl mx-auto">
+              <div className="pt-6 pb-16 max-w-2xl mx-auto">
                 {/* Hero statement */}
                 <div className="text-center mb-10">
                   <p className="text-lg text-gray-400 leading-relaxed">
@@ -476,12 +491,15 @@ export default function App() {
           </>
         )}
 
+        {/* ── Methodology mode ── */}
+        {mode === 'methodology' && <DataIntegrityPage />}
+
         {/* ── About mode ── */}
         {mode === 'about' && <AboutPage />}
       </main>
 
       {/* App-wide footer */}
-      {mode !== 'about' && (
+      {mode !== 'about' && mode !== 'methodology' && (
         <footer className="border-t border-gray-900 py-4 text-center">
           <p className="text-xs text-gray-700">
             v1.0 &middot; Built by{' '}
