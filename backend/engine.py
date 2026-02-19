@@ -136,6 +136,11 @@ def compute_report(
     # ------------------------------------------------------------------
     course_level = _compute_course_level(conn, institution_id)
 
+    # ------------------------------------------------------------------
+    # Student-staff ratios (teaching intensity signal)
+    # ------------------------------------------------------------------
+    staff_ratio = _compute_staff_ratio(conn, institution_id)
+
     return {
         "institution": institution,
         "field": field_info,
@@ -148,6 +153,7 @@ def compute_report(
         "field_context": field_context,
         "international": international,
         "course_level": course_level,
+        "staff_ratio": staff_ratio,
     }
 
 
@@ -554,6 +560,116 @@ def _compute_course_level(conn: sqlite3.Connection, inst_id: int) -> Optional[Di
         "completion": comp_data,
         "national_avg_enrolment": nat_enrol_pcts,
         "efficiency": efficiency,
+    }
+
+
+def _compute_staff_ratio(conn: sqlite3.Connection, inst_id: int) -> Optional[Dict[str, Any]]:
+    """
+    Compute student-staff ratio data for an institution.
+
+    Returns the latest year's ratio, national average, percentile rank,
+    and a 10-year trend. Returns None if no data exists.
+    """
+    # Latest year's data for this institution
+    latest = conn.execute(
+        """SELECT year, academic_ratio, non_academic_ratio,
+                  eftsl, academic_fte, non_academic_fte
+           FROM student_staff_ratios
+           WHERE institution_id = ? AND academic_ratio IS NOT NULL
+           ORDER BY year DESC LIMIT 1""",
+        (inst_id,),
+    ).fetchone()
+
+    if not latest:
+        return None
+
+    yr = latest["year"]
+    acad_ratio = latest["academic_ratio"]
+
+    # National average for the same year (exclude outliers: ratios < 3 are specialty institutions)
+    nat_avg_row = conn.execute(
+        """SELECT AVG(s.academic_ratio) as avg_ratio,
+                  AVG(s.non_academic_ratio) as avg_non_acad
+           FROM student_staff_ratios s
+           JOIN institutions i ON s.institution_id = i.id
+           WHERE s.year = ? AND s.academic_ratio IS NOT NULL
+             AND s.academic_ratio >= 3
+             AND i.name NOT LIKE '%Total%'""",
+        (yr,),
+    ).fetchone()
+
+    nat_avg_academic = round(nat_avg_row["avg_ratio"], 1) if nat_avg_row and nat_avg_row["avg_ratio"] else None
+    nat_avg_non_acad = round(nat_avg_row["avg_non_acad"], 1) if nat_avg_row and nat_avg_row["avg_non_acad"] else None
+
+    # Percentile rank (lower ratio = better, so invert: lower ratio = lower percentile)
+    all_ratios = conn.execute(
+        """SELECT s.academic_ratio FROM student_staff_ratios s
+           JOIN institutions i ON s.institution_id = i.id
+           WHERE s.year = ? AND s.academic_ratio IS NOT NULL
+             AND s.academic_ratio >= 3
+             AND i.name NOT LIKE '%Total%'""",
+        (yr,),
+    ).fetchall()
+    all_vals = [r["academic_ratio"] for r in all_ratios]
+    percentile = round(_percentile_rank(acad_ratio, all_vals), 1)
+
+    # Intensity label (lower ratio = more intensive teaching)
+    if percentile < 25:
+        intensity = "Very High"
+    elif percentile < 50:
+        intensity = "High"
+    elif percentile < 75:
+        intensity = "Moderate"
+    else:
+        intensity = "Low"
+
+    # Full trend (all years available for this institution)
+    trend_rows = conn.execute(
+        """SELECT year, academic_ratio, non_academic_ratio
+           FROM student_staff_ratios
+           WHERE institution_id = ? AND academic_ratio IS NOT NULL
+           ORDER BY year ASC""",
+        (inst_id,),
+    ).fetchall()
+    trend = [
+        {
+            "year": r["year"],
+            "academic": round(r["academic_ratio"], 1),
+            "non_academic": round(r["non_academic_ratio"], 1) if r["non_academic_ratio"] else None,
+        }
+        for r in trend_rows
+    ]
+
+    # Trend direction (is the ratio increasing or decreasing?)
+    if len(trend) >= 3:
+        recent = trend[-5:] if len(trend) >= 5 else trend
+        xs = [float(t["year"]) for t in recent]
+        ys = [float(t["academic"]) for t in recent]
+        slope = _linear_slope(xs, ys)
+        if slope > 0.3:
+            trend_dir = "increasing"    # getting worse (more students per staff)
+        elif slope < -0.3:
+            trend_dir = "decreasing"    # getting better (fewer students per staff)
+        else:
+            trend_dir = "stable"
+    else:
+        slope = 0.0
+        trend_dir = "stable"
+
+    return {
+        "year": yr,
+        "academic_ratio": acad_ratio,
+        "non_academic_ratio": latest["non_academic_ratio"],
+        "eftsl": latest["eftsl"],
+        "academic_fte": latest["academic_fte"],
+        "non_academic_fte": latest["non_academic_fte"],
+        "national_avg_academic": nat_avg_academic,
+        "national_avg_non_academic": nat_avg_non_acad,
+        "percentile": percentile,
+        "intensity": intensity,
+        "trend": trend,
+        "trend_direction": trend_dir,
+        "trend_slope": round(slope, 3),
     }
 
 

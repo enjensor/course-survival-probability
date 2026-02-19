@@ -136,6 +136,28 @@ export interface CourseLevelData {
   efficiency: CourseLevelEfficiency | null
 }
 
+export interface StaffRatioTrendPoint {
+  year: number
+  academic: number
+  non_academic: number | null
+}
+
+export interface StaffRatioData {
+  year: number
+  academic_ratio: number
+  non_academic_ratio: number | null
+  eftsl: number | null
+  academic_fte: number | null
+  non_academic_fte: number | null
+  national_avg_academic: number | null
+  national_avg_non_academic: number | null
+  percentile: number
+  intensity: string
+  trend: StaffRatioTrendPoint[]
+  trend_direction: string
+  trend_slope: number
+}
+
 export interface ReportData {
   institution: { id: number; name: string; state: string; provider_type: string }
   field: { id: number; name: string } | null
@@ -148,6 +170,7 @@ export interface ReportData {
   field_context: FieldContext | null
   international: InternationalData | null
   course_level: CourseLevelData | null
+  staff_ratio: StaffRatioData | null
 }
 
 /* ── Heatmap (Explore by Field) types ── */

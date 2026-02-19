@@ -112,3 +112,19 @@ CREATE TABLE IF NOT EXISTS course_level_mix (
     source_file     TEXT,
     UNIQUE(institution_id, year, measure)
 );
+
+-- Core 6: student-staff ratios (Staff Appendix 2)
+CREATE TABLE IF NOT EXISTS student_staff_ratios (
+    id                  INTEGER PRIMARY KEY,
+    institution_id      INTEGER NOT NULL REFERENCES institutions(id),
+    year                INTEGER NOT NULL,
+    academic_ratio      REAL,              -- EFTSL per academic FTE (incl casual)
+    non_academic_ratio  REAL,              -- EFTSL per non-academic FTE (incl casual)
+    eftsl               REAL,              -- onshore student EFTSL
+    academic_fte        REAL,              -- academic staff FTE (incl casual)
+    non_academic_fte    REAL,              -- non-academic staff FTE (incl casual)
+    source_file         TEXT,
+    UNIQUE(institution_id, year)
+);
+CREATE INDEX IF NOT EXISTS idx_ssr_inst_year
+    ON student_staff_ratios(institution_id, year);

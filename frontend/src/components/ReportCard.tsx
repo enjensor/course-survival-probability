@@ -1,4 +1,4 @@
-import type { ReportData, TrendPoint, CourseLevelBreakdown, CourseLevelPcts } from '../types'
+import type { ReportData, TrendPoint, CourseLevelBreakdown, CourseLevelPcts, StaffRatioData } from '../types'
 import CompletionGauge from './CompletionGauge'
 import RiskBadge from './RiskBadge'
 import TrendChart from './TrendChart'
@@ -278,6 +278,173 @@ function CourseLevelChart({
   )
 }
 
+/* ── Student-Staff Ratio card ────────────────────────────────────── */
+
+const INTENSITY_STYLES: Record<string, { bg: string; border: string; text: string }> = {
+  'Very High': { bg: 'bg-emerald-900/30', border: 'border-emerald-700', text: 'text-emerald-400' },
+  'High':      { bg: 'bg-emerald-900/20', border: 'border-emerald-800', text: 'text-emerald-400' },
+  'Moderate':  { bg: 'bg-amber-900/20',   border: 'border-amber-800',   text: 'text-amber-400' },
+  'Low':       { bg: 'bg-red-900/20',     border: 'border-red-800',     text: 'text-red-400' },
+}
+
+function StaffRatioCard({ data }: { data: StaffRatioData }) {
+  const style = INTENSITY_STYLES[data.intensity] || INTENSITY_STYLES['Moderate']
+  const natAvg = data.national_avg_academic
+  const betterThanAvg = natAvg !== null && data.academic_ratio < natAvg
+
+  // Trend sparkline
+  const trend = data.trend
+  const hasTrend = trend.length >= 2
+
+  let trendSvg = null
+  if (hasTrend) {
+    const vals = trend.map((t) => t.academic)
+    const minV = Math.min(...vals) - 1
+    const maxV = Math.max(...vals) + 1
+    const range = maxV - minV || 1
+    const W = 200
+    const H = 48
+    const pad = 4
+    const plotW = W - pad * 2
+    const plotH = H - pad * 2
+
+    const points = vals.map((v, i) => ({
+      x: pad + (i / Math.max(vals.length - 1, 1)) * plotW,
+      y: pad + plotH - ((v - minV) / range) * plotH,
+    }))
+
+    const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
+
+    // For ratio: lower is better (more teaching intensity)
+    const first = vals[0]
+    const last = vals[vals.length - 1]
+    const diff = last - first
+    const improving = diff <= 0
+    const strokeColor = improving ? '#34d399' : '#f87171'
+
+    trendSvg = (
+      <div className="pt-2">
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-xs text-gray-500">
+            Students per academic staff — {trend[0].year}–{trend[trend.length - 1].year}
+          </span>
+          <span className={`text-xs font-medium ${improving ? 'text-emerald-400' : 'text-red-400'}`}>
+            {improving ? '↓' : '↑'} {Math.abs(diff).toFixed(1)}
+          </span>
+        </div>
+        <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-12">
+          <path d={linePath} fill="none" stroke={strokeColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx={points[0].x} cy={points[0].y} r="2.5" fill={strokeColor} />
+          <circle cx={points[points.length - 1].x} cy={points[points.length - 1].y} r="2.5" fill={strokeColor} />
+          {/* National average line */}
+          {natAvg !== null && (
+            <line
+              x1={pad} y1={pad + plotH - ((natAvg - minV) / range) * plotH}
+              x2={pad + plotW} y2={pad + plotH - ((natAvg - minV) / range) * plotH}
+              stroke="#6b7280" strokeWidth="1" strokeDasharray="4 3" opacity="0.5"
+            />
+          )}
+        </svg>
+        <div className="flex justify-between text-xs text-gray-600 -mt-1">
+          <span>{first.toFixed(1)}</span>
+          {natAvg !== null && (
+            <span className="text-gray-600">Natl avg: {natAvg.toFixed(1)}</span>
+          )}
+          <span>{last.toFixed(1)}</span>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="bg-gray-900 rounded-2xl p-5 space-y-4">
+      <p className="text-xs text-gray-500 leading-relaxed">
+        How many students share each academic staff member. Lower ratios mean smaller classes
+        and more individual attention — a signal of teaching intensity.
+      </p>
+
+      {/* Main metrics */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {/* Academic ratio (main metric) */}
+        <div className={`rounded-xl p-4 space-y-2 ${style.bg} border ${style.border}`}>
+          <p className="text-xs text-gray-400 font-medium">Students per Academic Staff</p>
+          <p className="text-2xl font-bold text-gray-100 tabular-nums">
+            {data.academic_ratio.toFixed(1)}
+          </p>
+          <div className="flex items-center gap-2">
+            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-800/80 ${style.text}`}>
+              {data.intensity} intensity
+            </span>
+          </div>
+          {natAvg !== null && (
+            <p className="text-xs text-gray-600">
+              Natl avg: {natAvg.toFixed(1)}{' '}
+              <span className={betterThanAvg ? 'text-emerald-400' : 'text-red-400'}>
+                ({betterThanAvg ? '↓' : '↑'} {Math.abs(data.academic_ratio - natAvg).toFixed(1)} {betterThanAvg ? 'fewer' : 'more'})
+              </span>
+            </p>
+          )}
+        </div>
+
+        {/* Non-academic ratio */}
+        <div className="bg-gray-800 rounded-xl p-4 space-y-2">
+          <p className="text-xs text-gray-500 font-medium">Students per Non-Academic Staff</p>
+          <p className="text-xl font-bold text-gray-100 tabular-nums">
+            {data.non_academic_ratio !== null ? data.non_academic_ratio.toFixed(1) : 'N/A'}
+          </p>
+          {data.national_avg_non_academic !== null && (
+            <p className="text-xs text-gray-600">
+              Natl avg: {data.national_avg_non_academic.toFixed(1)}
+            </p>
+          )}
+          <p className="text-xs text-gray-700">{data.year} data</p>
+        </div>
+
+        {/* Raw counts */}
+        <div className="bg-gray-800 rounded-xl p-4 space-y-2">
+          <p className="text-xs text-gray-500 font-medium">Scale ({data.year})</p>
+          <div className="space-y-1.5 text-xs">
+            {data.eftsl !== null && (
+              <div className="flex justify-between">
+                <span className="text-gray-500">Student EFTSL</span>
+                <span className="text-gray-300 font-medium tabular-nums">{Math.round(data.eftsl).toLocaleString()}</span>
+              </div>
+            )}
+            {data.academic_fte !== null && (
+              <div className="flex justify-between">
+                <span className="text-gray-500">Academic FTE</span>
+                <span className="text-gray-300 font-medium tabular-nums">{Math.round(data.academic_fte).toLocaleString()}</span>
+              </div>
+            )}
+            {data.non_academic_fte !== null && (
+              <div className="flex justify-between">
+                <span className="text-gray-500">Non-academic FTE</span>
+                <span className="text-gray-300 font-medium tabular-nums">{Math.round(data.non_academic_fte).toLocaleString()}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Trend */}
+      {trendSvg}
+
+      {/* Interpretation note */}
+      <p className="text-xs text-gray-600 leading-relaxed">
+        <span className="text-gray-400 font-medium">What this means:</span>{' '}
+        A ratio of {data.academic_ratio.toFixed(0)} means roughly {data.academic_ratio.toFixed(0)} full-time-equivalent
+        students for every academic staff member (including casuals).{' '}
+        {data.intensity === 'Very High' || data.intensity === 'High'
+          ? 'This institution has relatively more staff per student than average.'
+          : data.intensity === 'Low'
+            ? 'This institution has relatively fewer staff per student than average, which may affect class sizes and individual support.'
+            : 'This institution is near the middle of the range.'
+        }
+      </p>
+    </div>
+  )
+}
+
 /* ── Mini trend for international attrition ──────────────────────── */
 function IntlTrendMini({ data }: { data: Array<{ year: number; rate: number }> }) {
   if (data.length < 2) return null
@@ -483,6 +650,19 @@ export default function ReportCard({ data }: Props) {
             nationalAvg={data.course_level.national_avg_enrolment}
             efficiency={data.course_level.efficiency}
           />
+        </>
+      )}
+
+      {/* ── Student-Staff Ratio ── */}
+      {data.staff_ratio && (
+        <>
+          <SectionLabel>
+            Teaching Intensity
+            <span className="ml-2 text-gray-600 normal-case tracking-normal font-normal">
+              — student-staff ratios, {data.staff_ratio.year} data
+            </span>
+          </SectionLabel>
+          <StaffRatioCard data={data.staff_ratio} />
         </>
       )}
 

@@ -82,7 +82,7 @@ export default function DataIntegrityPage() {
             <DataRow label="File format" value="XLSX spreadsheets" />
             <DataRow label="Coverage" value="All registered HE providers" />
             <DataRow label="Years available" value="2001 – 2024" />
-            <DataRow label="Data sections used" value="Sections 1, 2, 14, 15, 16, 17" />
+            <DataRow label="Data sections used" value="Sections 1, 2, 14, 15, 16, 17 + Staff Appendix 2" />
             <DataRow label="Database" value="SQLite (9 MB, 30k+ rows)" />
           </div>
         </div>
@@ -620,6 +620,82 @@ export default function DataIntegrityPage() {
                 <span className="text-amber-400 font-medium">Aggregated rows excluded:</span> Non-University
                 Higher Education Institutions are grouped by the Department and excluded from individual
                 institution comparisons.
+              </p>
+            </div>
+          </MetricBlock>
+        </div>
+      </SectionCard>
+
+      {/* ── Teaching Intensity (Student-Staff Ratios) ── */}
+      <SectionCard id="staff-ratio">
+        <h3 className="text-base font-semibold text-gray-200 mb-3">Teaching Intensity (Student-Staff Ratios)</h3>
+        <div className="space-y-3">
+          <MetricBlock title="What it measures" subtitle="Staff Appendix 2 — Student-Staff Ratios">
+            <p>
+              The student-staff ratio expresses how many full-time-equivalent students (EFTSL) there
+              are for every full-time-equivalent staff member (FTE). A ratio of 20 means the institution
+              has roughly 20 students for every academic staff member.
+            </p>
+            <p>
+              Lower ratios generally indicate smaller class sizes and more opportunity for individual
+              attention. Higher ratios may signal larger lecture-based teaching or higher reliance on
+              casual/sessional staff.
+            </p>
+          </MetricBlock>
+
+          <MetricBlock title="Metrics shown">
+            <div className="bg-gray-900/60 rounded-lg p-3 space-y-1">
+              <DataRow label="Academic ratio" value="EFTSL ÷ Academic FTE (incl. casual)" />
+              <DataRow label="Non-academic ratio" value="EFTSL ÷ Non-academic FTE (incl. casual)" />
+              <DataRow label="EFTSL" value="Onshore equivalent full-time student load" />
+              <DataRow label="Academic FTE" value="All academic staff (full-time + fractional + estimated casual)" />
+              <DataRow label="Non-academic FTE" value="All non-academic staff (full-time + fractional + estimated casual)" />
+            </div>
+          </MetricBlock>
+
+          <MetricBlock title="Intensity ranking">
+            <p>
+              Each institution's academic staff ratio is ranked against all other Table A and B
+              institutions in the same year using a percentile formula:
+            </p>
+            <div className="bg-gray-900/60 rounded-lg p-3 space-y-1">
+              <DataRow label="0 – 24th percentile" value="Very High intensity (fewest students per staff)" />
+              <DataRow label="25 – 49th percentile" value="High intensity" />
+              <DataRow label="50 – 74th percentile" value="Moderate intensity" />
+              <DataRow label="75th+ percentile" value="Low intensity (most students per staff)" />
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Unlike attrition (where high = bad), a <em>low</em> staff ratio is generally favourable
+              for students, so the ranking inverts: low ratio = high intensity.
+            </p>
+          </MetricBlock>
+
+          <MetricBlock title="Data source">
+            <div className="bg-gray-900/60 rounded-lg p-3 space-y-1">
+              <DataRow label="Source file" value="Staff Appendix 2 — Student Staff Ratios (2024 publication)" />
+              <DataRow label="Coverage" value="Table A and B institutions only (42 providers)" />
+              <DataRow label="Years available" value="2014 – 2023" />
+              <DataRow label="Staff snapshot" value="31 March each year (casual = calendar year estimate)" />
+              <DataRow label="Student load" value="Onshore EFTSL only" />
+            </div>
+          </MetricBlock>
+
+          <MetricBlock title="Limitations">
+            <div className="space-y-2 text-xs">
+              <p>
+                <span className="text-amber-400 font-medium">Casual staff estimation:</span> Casual
+                academic staff FTE is an institutional estimate for the full calendar year, not a census
+                count. Institutions may estimate casuals differently, affecting comparability.
+              </p>
+              <p>
+                <span className="text-amber-400 font-medium">Onshore only:</span> The EFTSL count
+                includes only onshore students. Institutions with large offshore programmes will appear
+                to have lower ratios than their true teaching load.
+              </p>
+              <p>
+                <span className="text-amber-400 font-medium">Aggregation:</span> The ratio is
+                institution-wide and does not reflect variation between faculties, departments, or
+                course levels. A research-intensive school may have very different ratios by department.
               </p>
             </div>
           </MetricBlock>
