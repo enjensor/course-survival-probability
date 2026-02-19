@@ -10,10 +10,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 
 from db import get_db
 from engine import compute_report, compute_field_heatmap, compute_equity_report
@@ -31,6 +31,17 @@ app.add_middleware(
     allow_methods=["GET"],
     allow_headers=["*"],
 )
+
+
+# Cache control — data updates ~annually so API responses can be cached
+@app.middleware("http")
+async def add_cache_headers(request: Request, call_next) -> Response:
+    response = await call_next(request)
+    path = request.url.path
+    if path.startswith("/api/") and path != "/api/health":
+        # Cache data endpoints for 1 hour; stale-while-revalidate for 24 hours
+        response.headers["Cache-Control"] = "public, max-age=3600, stale-while-revalidate=86400"
+    return response
 
 
 @app.get("/api/health")

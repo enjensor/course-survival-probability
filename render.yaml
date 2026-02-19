@@ -4,4 +4,5 @@ services:
     runtime: python
     buildCommand: pip install -r backend/requirements.txt && cd frontend && npm install && npm run build
     startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
     plan: free
