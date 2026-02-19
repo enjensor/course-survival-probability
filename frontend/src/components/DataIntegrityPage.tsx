@@ -389,10 +389,42 @@ export default function DataIntegrityPage() {
               backgrounds against the national average. Three measures are tracked for each equity group:
             </p>
             <div className="bg-gray-900/60 rounded-lg p-3 space-y-1">
-              <DataRow label="Retention" value="% who returned for year 2" />
-              <DataRow label="Success" value="% of subjects passed (EFTSL)" />
-              <DataRow label="Attainment" value="% with a qualification at census" />
+              <DataRow label="Retention (Came back)" value="% who returned for year 2" />
+              <DataRow label="Success (Passed subjects)" value="% of subjects passed (EFTSL)" />
+              <DataRow label="Attainment (Share of graduates)" value="% of the institution's total graduates from this group" />
             </div>
+            <p className="text-xs text-amber-400 mt-2">
+              Important: Retention and Success are direct performance measures — they tell you how well
+              equity group students are doing. Attainment is fundamentally different: it measures
+              <em> representation</em>, not individual success.
+            </p>
+          </MetricBlock>
+
+          <MetricBlock title="Understanding attainment (Share of graduates)">
+            <p>
+              The government's attainment metric measures what share of an institution's total
+              graduates came from a specific equity group. For example, if an institution has an
+              attainment rate of 2.5% for First Nations students, it means 2.5% of that institution's
+              graduates identified as First Nations.
+            </p>
+            <p>
+              This is a representation measure, not a completion rate. Low numbers do not mean
+              equity students are failing to finish — they reflect the group's share of the graduate
+              population. The national averages for attainment reflect these population shares:
+            </p>
+            <div className="bg-gray-900/60 rounded-lg p-3 space-y-1">
+              <DataRow label="Remote" value="~1% of graduates nationally" />
+              <DataRow label="First Nations" value="~2% of graduates nationally" />
+              <DataRow label="NESB" value="~3% of graduates nationally" />
+              <DataRow label="Disability" value="~11% of graduates nationally" />
+              <DataRow label="Low SES" value="~16% of graduates nationally" />
+              <DataRow label="Regional" value="~20% of graduates nationally" />
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              An institution above the national average has a higher representation of that
+              equity group among its graduates. There is no "all domestic" baseline for attainment
+              because the all-domestic share of total graduates would always be 100%.
+            </p>
           </MetricBlock>
           <MetricBlock title="Equity groups">
             <div className="bg-gray-900/60 rounded-lg p-3 space-y-1">

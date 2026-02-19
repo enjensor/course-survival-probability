@@ -16,9 +16,9 @@ const GROUP_META: Record<string, { label: string; description: string }> = {
 }
 
 const MEASURE_LABELS: Record<string, { label: string; description: string }> = {
-  retention:  { label: 'Came back',       description: 'Re-enrolled the following year' },
-  success:    { label: 'Passed subjects', description: 'Passed their enrolled subjects' },
-  attainment: { label: 'Finished degree', description: 'Completed a qualification' },
+  retention:  { label: 'Came back',          description: 'Re-enrolled the following year' },
+  success:    { label: 'Passed subjects',    description: 'Passed their enrolled subjects' },
+  attainment: { label: 'Share of graduates', description: 'Proportion of the institution\'s graduates from this group' },
 }
 
 const KEY_GROUPS = ['low_ses', 'regional', 'first_nations', 'disability', 'nesb']
@@ -104,6 +104,9 @@ function MetricBar({ metric, measure }: { metric: EquityGroupMetric; measure: st
           Natl avg: {avg.toFixed(1)}%
         </span>
       </div>
+      {measure === 'attainment' && (
+        <p className="text-xs text-gray-600 italic mt-0.5">Representation share, not completion rate</p>
+      )}
     </div>
   )
 }
@@ -307,7 +310,7 @@ export default function EquityReport({ data }: Props) {
         <p className="text-xs text-gray-600 mt-1.5">
           Data years — Return rate: {latestYears.retention ?? 'N/A'}
           {' · '}Subject pass rate: {latestYears.success ?? 'N/A'}
-          {' · '}Degree completion: {latestYears.attainment ?? 'N/A'}
+          {' · '}Graduate share: {latestYears.attainment ?? 'N/A'}
         </p>
       </div>
 
@@ -316,6 +319,27 @@ export default function EquityReport({ data }: Props) {
 
       {/* All domestic baseline */}
       <BaselineCard allDomestic={data.all_domestic} />
+
+      {/* How to read these metrics */}
+      <div className="bg-gray-900/60 rounded-xl p-4 border border-gray-800 space-y-2">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400">How to read these metrics</h3>
+        <div className="text-xs text-gray-500 leading-relaxed space-y-1.5">
+          <p>
+            <span className="text-emerald-400 font-medium">Came back</span> and{' '}
+            <span className="text-emerald-400 font-medium">Passed subjects</span> are
+            direct performance measures — they tell you how well equity group students are
+            retained and how well they pass their subjects, compared to the national average.
+          </p>
+          <p>
+            <span className="text-indigo-400 font-medium">Share of graduates</span> is different.
+            It shows what percentage of the institution's <em>total graduates</em> come from each equity group.
+            This is a <em>representation</em> measure, not a success rate. For example, if First Nations students
+            make up 2% of graduates nationally, that reflects their share of the graduate population — not that
+            only 2% of First Nations students finish their degree. Whether an institution is above or below
+            the national average indicates how strongly that group is represented among its graduates.
+          </p>
+        </div>
+      </div>
 
       {/* Section label */}
       <div className="flex items-center gap-2 mt-2">
