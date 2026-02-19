@@ -402,20 +402,88 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* Data currency note */}
-                <div className="mt-10 pt-6 border-t border-gray-800/50">
-                  <p className="text-xs text-gray-600 text-center leading-relaxed">
-                    <span className="text-gray-500 font-medium">Data currency</span>
-                    {' · '}Enrolments, completions &amp; subject pass rates: 2024
-                    {' · '}Dropout &amp; retention rates: 2023
-                    {' · '}Completion cohorts: 2005–2024
-                    {' · '}Staff ratios: 2014–2023
-                    <br className="hidden sm:inline" />
-                    <span className="text-gray-700">
-                      Source: Dept of Education, Sep 2025 publication.
-                      Attrition data lags ~18 months — next update expected late 2026.
-                    </span>
-                  </p>
+                {/* Data currency table */}
+                <div className="mt-12 bg-gray-900 rounded-2xl border border-gray-800 p-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <h3 className="text-sm font-semibold text-gray-200">Data Currency</h3>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="text-gray-500 border-b border-gray-800">
+                          <th className="text-left py-2 font-medium">Metric</th>
+                          <th className="text-right py-2 font-medium">Latest data</th>
+                          <th className="text-right py-2 font-medium hidden sm:table-cell">Source</th>
+                          <th className="text-right py-2 font-medium">Next update</th>
+                        </tr>
+                      </thead>
+                      <tbody className="text-gray-400">
+                        <tr className="border-b border-gray-800/50">
+                          <td className="py-2">Enrolments &amp; completions</td>
+                          <td className="text-right py-2 tabular-nums text-emerald-400 font-medium">2024</td>
+                          <td className="text-right py-2 hidden sm:table-cell text-gray-600">Sections 1, 2, 14</td>
+                          <td className="text-right py-2 text-gray-600 tabular-nums">~Sep 2026</td>
+                        </tr>
+                        <tr className="border-b border-gray-800/50">
+                          <td className="py-2">Subject pass rates</td>
+                          <td className="text-right py-2 tabular-nums text-emerald-400 font-medium">2024</td>
+                          <td className="text-right py-2 hidden sm:table-cell text-gray-600">Section 15</td>
+                          <td className="text-right py-2 text-gray-600 tabular-nums">~Sep 2026</td>
+                        </tr>
+                        <tr className="border-b border-gray-800/50">
+                          <td className="py-2">Equity (attainment &amp; success)</td>
+                          <td className="text-right py-2 tabular-nums text-emerald-400 font-medium">2024</td>
+                          <td className="text-right py-2 hidden sm:table-cell text-gray-600">Section 16</td>
+                          <td className="text-right py-2 text-gray-600 tabular-nums">~Sep 2026</td>
+                        </tr>
+                        <tr className="border-b border-gray-800/50">
+                          <td className="py-2">Dropout rate (attrition)</td>
+                          <td className="text-right py-2 tabular-nums text-amber-400 font-medium">2023</td>
+                          <td className="text-right py-2 hidden sm:table-cell text-gray-600">Section 15</td>
+                          <td className="text-right py-2 text-gray-600 tabular-nums">~Sep 2026</td>
+                        </tr>
+                        <tr className="border-b border-gray-800/50">
+                          <td className="py-2">Retention (came back for year 2)</td>
+                          <td className="text-right py-2 tabular-nums text-amber-400 font-medium">2023</td>
+                          <td className="text-right py-2 hidden sm:table-cell text-gray-600">Section 15</td>
+                          <td className="text-right py-2 text-gray-600 tabular-nums">~Sep 2026</td>
+                        </tr>
+                        <tr className="border-b border-gray-800/50">
+                          <td className="py-2">Completion cohorts</td>
+                          <td className="text-right py-2 tabular-nums text-emerald-400 font-medium">2005–2024</td>
+                          <td className="text-right py-2 hidden sm:table-cell text-gray-600">Section 17</td>
+                          <td className="text-right py-2 text-gray-600 tabular-nums">~Sep 2026</td>
+                        </tr>
+                        <tr className="border-b border-gray-800/50">
+                          <td className="py-2">Student-staff ratios</td>
+                          <td className="text-right py-2 tabular-nums text-amber-400 font-medium">2014–2023</td>
+                          <td className="text-right py-2 hidden sm:table-cell text-gray-600">Staff Appendix 2</td>
+                          <td className="text-right py-2 text-gray-600 tabular-nums">~Sep 2026</td>
+                        </tr>
+                        <tr>
+                          <td className="py-2">Course level mix</td>
+                          <td className="text-right py-2 tabular-nums text-emerald-400 font-medium">2024</td>
+                          <td className="text-right py-2 hidden sm:table-cell text-gray-600">Sections 2, 14</td>
+                          <td className="text-right py-2 text-gray-600 tabular-nums">~Sep 2026</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-gray-800/50 space-y-1.5">
+                    <p className="text-xs text-gray-500">
+                      <span className="text-emerald-400">&#9679;</span> 2024 data
+                      <span className="text-amber-400 ml-3">&#9679;</span> 2023 data (cohort lag — requires following year&rsquo;s re-enrolment to calculate)
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      Source: Australian Dept of Education, Higher Education Statistics — September 2025 publication.
+                      All data is updated annually. The 2025 student data is expected ~September 2026.
+                    </p>
+                    <p className="text-xs text-amber-700/80">
+                      The 2025 cohort year will be the first to fully reflect the sector disruptions of 2025.
+                      Dropout and retention figures for that period will not be published until late 2027.
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
