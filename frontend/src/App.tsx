@@ -429,12 +429,9 @@ export default function App() {
             )}
 
             {!heatmapLoading && !heatmapError && selectedField === null && (
-              <div className="text-center py-20">
+              <div className="text-center pt-6 pb-20">
                 <p className="text-gray-500 text-lg">
-                  Select a field of study to see which universities are safe or risky.
-                </p>
-                <p className="text-gray-600 text-sm mt-2">
-                  See which universities are safest or riskiest for that field, all in one view.
+                  Select a field of study above to compare all universities at a glance.
                 </p>
               </div>
             )}
@@ -470,12 +467,9 @@ export default function App() {
             )}
 
             {!equityLoading && !equityError && selectedInst === null && (
-              <div className="text-center py-20">
+              <div className="text-center pt-6 pb-20">
                 <p className="text-gray-500 text-lg">
-                  Select a university to see its Equity Performance Report.
-                </p>
-                <p className="text-gray-600 text-sm mt-2">
-                  Compare how well this university supports students from different backgrounds.
+                  Select a university above to see how it supports students from different backgrounds.
                 </p>
               </div>
             )}
