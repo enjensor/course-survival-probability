@@ -401,6 +401,22 @@ export default function App() {
                     </p>
                   </button>
                 </div>
+
+                {/* Data currency note */}
+                <div className="mt-10 pt-6 border-t border-gray-800/50">
+                  <p className="text-xs text-gray-600 text-center leading-relaxed">
+                    <span className="text-gray-500 font-medium">Data currency</span>
+                    {' · '}Enrolments, completions &amp; subject pass rates: 2024
+                    {' · '}Dropout &amp; retention rates: 2023
+                    {' · '}Completion cohorts: 2005–2024
+                    {' · '}Staff ratios: 2014–2023
+                    <br className="hidden sm:inline" />
+                    <span className="text-gray-700">
+                      Source: Dept of Education, Sep 2025 publication.
+                      Attrition data lags ~18 months — next update expected late 2026.
+                    </span>
+                  </p>
+                </div>
               </div>
             )}
 
