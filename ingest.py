@@ -1503,8 +1503,8 @@ def classify_file(fname: str) -> Optional[Tuple[str, int]]:
     if "equity" in fl and "performance" in fl:
         return ("section-16", year or 0)
 
-    # Pivot tables
-    if "pivot" in fl and "perturbed" in fl:
+    # Pivot tables (perturbed and non-perturbed)
+    if "pivot" in fl:
         if "completion" in fl or "award" in fl:
             return ("pivot-completions", year or 0)
         elif "enrolment" in fl:
