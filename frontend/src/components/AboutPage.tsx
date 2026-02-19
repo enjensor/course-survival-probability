@@ -225,9 +225,9 @@ export default function AboutPage() {
                   desc: 'How students rate their teaching quality, learning resources, and overall experience — from the Student Experience Survey.',
                 },
                 {
-                  status: 'exploring',
+                  status: 'done',
                   title: 'International Student Data',
-                  desc: 'Completion and retention data for international students, where available in the Department\'s collections.',
+                  desc: 'Overseas student attrition, retention, and success rates compared to domestic students and national averages — now live in institution reports.',
                 },
                 {
                   status: 'planned',
@@ -237,7 +237,7 @@ export default function AboutPage() {
               ].map((item) => (
                 <div key={item.title} className="bg-gray-800 rounded-xl p-4 flex gap-3">
                   <div className="shrink-0 mt-0.5">
-                    <span className={`inline-block w-2 h-2 rounded-full ${item.status === 'planned' ? 'bg-indigo-500' : 'bg-gray-600'}`} />
+                    <span className={`inline-block w-2 h-2 rounded-full ${item.status === 'done' ? 'bg-emerald-500' : item.status === 'planned' ? 'bg-indigo-500' : 'bg-gray-600'}`} />
                   </div>
                   <div>
                     <h4 className="text-sm font-semibold text-gray-200">{item.title}</h4>

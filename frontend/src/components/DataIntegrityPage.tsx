@@ -478,6 +478,63 @@ export default function DataIntegrityPage() {
         </div>
       </SectionCard>
 
+      {/* ── International Students ── */}
+      <SectionCard id="international">
+        <h3 className="text-base font-semibold text-gray-200 mb-3">International Students</h3>
+        <div className="space-y-3">
+          <MetricBlock title="What it measures" subtitle="Section 15 — Overseas student breakdown">
+            <p>
+              The same attrition, retention, and success metrics used for domestic students are also
+              published separately for overseas (international) students. This lets you compare how
+              international students fare at a given institution relative to domestic students and
+              the national average for international students.
+            </p>
+          </MetricBlock>
+
+          <MetricBlock title="Metrics shown">
+            <div className="space-y-2 text-xs">
+              <p>
+                <span className="text-gray-300 font-medium">Dropout rate</span> — Percentage of
+                overseas commencing students who did not return the following year.
+              </p>
+              <p>
+                <span className="text-gray-300 font-medium">Came Back for Year 2</span> — Retention
+                rate for overseas students (1 − attrition, approximately).
+              </p>
+              <p>
+                <span className="text-gray-300 font-medium">Subject Pass Rate</span> — Success rate
+                for overseas students: the proportion of units passed.
+              </p>
+              <p>
+                Each metric is compared to the domestic rate at the same institution and the national
+                average across all institutions for international students (same year).
+              </p>
+            </div>
+          </MetricBlock>
+
+          <MetricBlock title="Trend">
+            <p>
+              A 5-year sparkline shows how the international dropout rate has changed at the
+              institution. A downward trend (green) indicates improving retention of overseas students.
+            </p>
+          </MetricBlock>
+
+          <MetricBlock title="Limitations">
+            <div className="space-y-2 text-xs">
+              <p>
+                <span className="text-amber-400 font-medium">Coverage:</span> Not all institutions
+                have international student data — smaller or domestic-only providers return no
+                overseas figures. The section only appears when data exists.
+              </p>
+              <p>
+                <span className="text-amber-400 font-medium">Student type definition:</span> "Overseas"
+                follows the Department's classification based on visa status, not citizenship or residency.
+              </p>
+            </div>
+          </MetricBlock>
+        </div>
+      </SectionCard>
+
       {/* ── Known Limitations ── */}
       <SectionCard id="limitations">
         <h3 className="text-base font-semibold text-gray-200 mb-3">Known Limitations</h3>

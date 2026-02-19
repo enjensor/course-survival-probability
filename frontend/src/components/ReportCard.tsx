@@ -92,6 +92,59 @@ function MiniSparkline({
   )
 }
 
+/* ── Mini trend for international attrition ──────────────────────── */
+function IntlTrendMini({ data }: { data: Array<{ year: number; rate: number }> }) {
+  if (data.length < 2) return null
+
+  const rates = data.map((d) => d.rate)
+  const minR = Math.min(...rates)
+  const maxR = Math.max(...rates)
+  const range = maxR - minR || 1
+
+  const W = 200
+  const H = 48
+  const padX = 4
+  const padY = 4
+  const plotW = W - padX * 2
+  const plotH = H - padY * 2
+
+  const points = rates.map((r, i) => ({
+    x: padX + (i / Math.max(rates.length - 1, 1)) * plotW,
+    y: padY + plotH - ((r - minR) / range) * plotH,
+  }))
+
+  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
+
+  const first = rates[0]
+  const last = rates[rates.length - 1]
+  const diff = last - first
+  // For attrition, lower is better so invert color logic
+  const diffColor = diff <= 0 ? 'text-emerald-400' : 'text-red-400'
+  const diffArrow = diff <= 0 ? '\u2193' : '\u2191'
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-xs text-gray-500">
+          {data[0].year}–{data[data.length - 1].year}
+        </span>
+        <span className={`text-xs font-medium ${diffColor}`}>
+          {diffArrow} {Math.abs(diff).toFixed(1)} pp
+        </span>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-12">
+        <path d={linePath} fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx={points[0].x} cy={points[0].y} r="2.5" fill="#f87171" />
+        <circle cx={points[points.length - 1].x} cy={points[points.length - 1].y} r="2.5" fill="#f87171" />
+      </svg>
+      <div className="flex justify-between text-xs text-gray-600 -mt-1">
+        <span>{first}%</span>
+        <span>{last}%</span>
+      </div>
+    </div>
+  )
+}
+
 export default function ReportCard({ data }: Props) {
   const hasField = !!data.field
   const fc = data.field_context
@@ -226,6 +279,113 @@ export default function ReportCard({ data }: Props) {
         <TrendChart data={data.trend} />
         <CompletionTimeline data={data.completion_timeline} />
       </div>
+
+      {/* ── International Students ── */}
+      {data.international && (
+        <>
+          <SectionLabel>International Students</SectionLabel>
+          <div className="bg-gray-900 rounded-2xl p-5 space-y-4">
+            <p className="text-xs text-gray-500 leading-relaxed">
+              How overseas students fare at this institution compared to domestic students and the national average for international students.
+            </p>
+
+            {/* Metrics comparison grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Dropout Rate */}
+              <div className="bg-gray-800 rounded-xl p-4 space-y-2">
+                <p className="text-xs text-gray-500 font-medium">Dropout Rate</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-xl font-bold text-gray-100">
+                    {data.international.attrition.rate !== null
+                      ? `${data.international.attrition.rate}%`
+                      : 'N/A'}
+                  </p>
+                  {data.international.attrition.rate !== null && data.attrition.latest_rate !== null && (
+                    <span className={`text-xs font-medium ${
+                      data.international.attrition.rate <= data.attrition.latest_rate
+                        ? 'text-emerald-400' : 'text-red-400'
+                    }`}>
+                      {data.international.attrition.rate <= data.attrition.latest_rate ? '↓' : '↑'} vs domestic ({data.attrition.latest_rate}%)
+                    </span>
+                  )}
+                </div>
+                {data.international.attrition.national_avg !== null && (
+                  <p className="text-xs text-gray-600">
+                    National avg (intl): {data.international.attrition.national_avg}%
+                  </p>
+                )}
+                {data.international.attrition.year && (
+                  <p className="text-xs text-gray-700">{data.international.attrition.year} data</p>
+                )}
+              </div>
+
+              {/* Return Rate */}
+              <div className="bg-gray-800 rounded-xl p-4 space-y-2">
+                <p className="text-xs text-gray-500 font-medium">Came Back for Year 2</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-xl font-bold text-gray-100">
+                    {data.international.retention.rate !== null
+                      ? `${data.international.retention.rate}%`
+                      : 'N/A'}
+                  </p>
+                  {data.international.retention.rate !== null && data.retention.rate !== null && (
+                    <span className={`text-xs font-medium ${
+                      data.international.retention.rate >= data.retention.rate
+                        ? 'text-emerald-400' : 'text-red-400'
+                    }`}>
+                      {data.international.retention.rate >= data.retention.rate ? '↑' : '↓'} vs domestic ({data.retention.rate}%)
+                    </span>
+                  )}
+                </div>
+                {data.international.retention.national_avg !== null && (
+                  <p className="text-xs text-gray-600">
+                    National avg (intl): {data.international.retention.national_avg}%
+                  </p>
+                )}
+                {data.international.retention.year && (
+                  <p className="text-xs text-gray-700">{data.international.retention.year} data</p>
+                )}
+              </div>
+
+              {/* Subject Pass Rate */}
+              <div className="bg-gray-800 rounded-xl p-4 space-y-2">
+                <p className="text-xs text-gray-500 font-medium">Subject Pass Rate</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-xl font-bold text-gray-100">
+                    {data.international.success.rate !== null
+                      ? `${data.international.success.rate}%`
+                      : 'N/A'}
+                  </p>
+                  {data.international.success.rate !== null && data.success.rate !== null && (
+                    <span className={`text-xs font-medium ${
+                      data.international.success.rate >= data.success.rate
+                        ? 'text-emerald-400' : 'text-red-400'
+                    }`}>
+                      {data.international.success.rate >= data.success.rate ? '↑' : '↓'} vs domestic ({data.success.rate}%)
+                    </span>
+                  )}
+                </div>
+                {data.international.success.national_avg !== null && (
+                  <p className="text-xs text-gray-600">
+                    National avg (intl): {data.international.success.national_avg}%
+                  </p>
+                )}
+                {data.international.success.year && (
+                  <p className="text-xs text-gray-700">{data.international.success.year} data</p>
+                )}
+              </div>
+            </div>
+
+            {/* Mini trend */}
+            {data.international.trend.length > 1 && (
+              <div className="pt-1">
+                <p className="text-xs text-gray-500 mb-2">International dropout rate trend</p>
+                <IntlTrendMini data={data.international.trend} />
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   )
 }

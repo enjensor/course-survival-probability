@@ -88,6 +88,19 @@ export interface FieldContext {
   ranking: FieldRankingData | null
 }
 
+export interface InternationalMetric {
+  rate: number | null
+  year: number | null
+  national_avg: number | null
+}
+
+export interface InternationalData {
+  attrition: InternationalMetric
+  retention: InternationalMetric
+  success: InternationalMetric
+  trend: Array<{ year: number; rate: number }>
+}
+
 export interface ReportData {
   institution: { id: number; name: string; state: string; provider_type: string }
   field: { id: number; name: string } | null
@@ -98,6 +111,7 @@ export interface ReportData {
   trend: Trend
   completion_timeline: CompletionTimeline
   field_context: FieldContext | null
+  international: InternationalData | null
 }
 
 /* ── Heatmap (Explore by Field) types ── */

@@ -126,6 +126,11 @@ def compute_report(
     if field_id is not None:
         field_context = _compute_field_context(conn, institution_id, field_id)
 
+    # ------------------------------------------------------------------
+    # International student data (overseas attrition/retention/success)
+    # ------------------------------------------------------------------
+    international = _compute_international(conn, institution_id)
+
     return {
         "institution": institution,
         "field": field_info,
@@ -136,6 +141,7 @@ def compute_report(
         "trend": trend,
         "completion_timeline": timeline,
         "field_context": field_context,
+        "international": international,
     }
 
 
@@ -317,6 +323,121 @@ def _compute_trend(conn: sqlite3.Connection, inst_id: int) -> Dict[str, Any]:
         "attrition_rates": rates,
         "direction": _trend_direction(slope),
         "slope": round(slope, 3),
+    }
+
+
+def _compute_international(conn: sqlite3.Connection, inst_id: int) -> Optional[Dict[str, Any]]:
+    """
+    Compute international (overseas) student metrics for comparison with domestic.
+
+    Returns overseas attrition, retention, success rates, national averages,
+    and a 5-year attrition trend. Returns None if no overseas data exists.
+    """
+    # Check if this institution has any overseas data
+    check = conn.execute(
+        """SELECT COUNT(*) as c FROM attrition_retention
+           WHERE institution_id = ? AND student_type = 'overseas'
+             AND rate IS NOT NULL""",
+        (inst_id,),
+    ).fetchone()
+    if not check or check["c"] == 0:
+        return None
+
+    # Latest overseas attrition
+    attrition_row = conn.execute(
+        """SELECT rate, year FROM attrition_retention
+           WHERE institution_id = ? AND student_type = 'overseas'
+             AND measure = 'attrition' AND rate IS NOT NULL
+           ORDER BY year DESC LIMIT 1""",
+        (inst_id,),
+    ).fetchone()
+
+    # Latest overseas retention
+    retention_row = conn.execute(
+        """SELECT rate, year FROM attrition_retention
+           WHERE institution_id = ? AND student_type = 'overseas'
+             AND measure = 'retention' AND rate IS NOT NULL
+           ORDER BY year DESC LIMIT 1""",
+        (inst_id,),
+    ).fetchone()
+
+    # Latest overseas success
+    success_row = conn.execute(
+        """SELECT rate, year FROM attrition_retention
+           WHERE institution_id = ? AND student_type = 'overseas'
+             AND measure = 'success' AND rate IS NOT NULL
+           ORDER BY year DESC LIMIT 1""",
+        (inst_id,),
+    ).fetchone()
+
+    # National averages for overseas students (same year as this institution)
+    attrition_nat_avg = None
+    retention_nat_avg = None
+    success_nat_avg = None
+
+    if attrition_row:
+        avg = conn.execute(
+            """SELECT AVG(ar.rate) as avg_rate FROM attrition_retention ar
+               JOIN institutions i ON ar.institution_id = i.id
+               WHERE ar.student_type = 'overseas' AND ar.measure = 'attrition'
+                 AND ar.year = ? AND ar.rate IS NOT NULL
+                 AND i.name NOT LIKE '%Total%' AND i.name NOT LIKE '%Provider%'""",
+            (attrition_row["year"],),
+        ).fetchone()
+        if avg and avg["avg_rate"]:
+            attrition_nat_avg = round(avg["avg_rate"], 2)
+
+    if retention_row:
+        avg = conn.execute(
+            """SELECT AVG(ar.rate) as avg_rate FROM attrition_retention ar
+               JOIN institutions i ON ar.institution_id = i.id
+               WHERE ar.student_type = 'overseas' AND ar.measure = 'retention'
+                 AND ar.year = ? AND ar.rate IS NOT NULL
+                 AND i.name NOT LIKE '%Total%' AND i.name NOT LIKE '%Provider%'""",
+            (retention_row["year"],),
+        ).fetchone()
+        if avg and avg["avg_rate"]:
+            retention_nat_avg = round(avg["avg_rate"], 2)
+
+    if success_row:
+        avg = conn.execute(
+            """SELECT AVG(ar.rate) as avg_rate FROM attrition_retention ar
+               JOIN institutions i ON ar.institution_id = i.id
+               WHERE ar.student_type = 'overseas' AND ar.measure = 'success'
+                 AND ar.year = ? AND ar.rate IS NOT NULL
+                 AND i.name NOT LIKE '%Total%' AND i.name NOT LIKE '%Provider%'""",
+            (success_row["year"],),
+        ).fetchone()
+        if avg and avg["avg_rate"]:
+            success_nat_avg = round(avg["avg_rate"], 2)
+
+    # 5-year overseas attrition trend
+    trend_rows = conn.execute(
+        """SELECT year, rate FROM attrition_retention
+           WHERE institution_id = ? AND student_type = 'overseas'
+             AND measure = 'attrition' AND rate IS NOT NULL
+           ORDER BY year DESC LIMIT 5""",
+        (inst_id,),
+    ).fetchall()
+    trend = [{"year": r["year"], "rate": round(r["rate"], 2)} for r in reversed(trend_rows)]
+
+    return {
+        "attrition": {
+            "rate": round(attrition_row["rate"], 2) if attrition_row else None,
+            "year": attrition_row["year"] if attrition_row else None,
+            "national_avg": attrition_nat_avg,
+        },
+        "retention": {
+            "rate": round(retention_row["rate"], 2) if retention_row else None,
+            "year": retention_row["year"] if retention_row else None,
+            "national_avg": retention_nat_avg,
+        },
+        "success": {
+            "rate": round(success_row["rate"], 2) if success_row else None,
+            "year": success_row["year"] if success_row else None,
+            "national_avg": success_nat_avg,
+        },
+        "trend": trend,
     }
 
 
