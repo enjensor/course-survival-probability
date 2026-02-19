@@ -75,8 +75,8 @@ function ReportGuide() {
             a useful measure of how productive the program is. Values above 100% can happen in shrinking fields or postgrad-heavy areas.
           </li>
           <li className="pl-1">
-            <strong className="text-gray-400">Ranking tables</strong> show the top 5 and bottom 5 universities by graduation rate
-            for the selected field, plus where this uni sits.
+            <strong className="text-gray-400">Ranking tables</strong> show the top 5 and bottom 5 institutions by graduation rate
+            for the selected field, plus where this institution sits.
           </li>
         </ul>
       </Section>
@@ -132,7 +132,7 @@ function ReportGuide() {
                 <td className="py-2 pr-4 text-gray-400">Risk ranking</td>
                 <td className="py-2 pr-4">Calculated</td>
                 <td className="py-2 font-mono text-gray-400 text-xs">
-                  This uni's dropout rate ranked against all other universities in the same year
+                  This institution's dropout rate ranked against all others in the same year
                 </td>
               </tr>
             </tbody>
@@ -173,8 +173,8 @@ function EquityGuide() {
       <Section title="Reading the bars and gaps">
         <ul className="text-sm text-gray-500 space-y-3 list-disc pl-5" style={{ textAlign: 'justify' }}>
           <li className="pl-1">
-            The <strong className="text-gray-400">coloured bar</strong> shows this university's rate.
-            The <strong className="text-gray-400">white marker</strong> shows the national average across all universities.
+            The <strong className="text-gray-400">coloured bar</strong> shows this institution's rate.
+            The <strong className="text-gray-400">white marker</strong> shows the national average across all institutions.
           </li>
           <li className="pl-1">
             <strong className="text-emerald-400">Green</strong> = this uni is above the national average for that group.
@@ -241,7 +241,7 @@ function EquityGuide() {
               <tr>
                 <td className="py-2 pr-4 text-gray-400">National avg</td>
                 <td className="py-2 pr-4">Calculated</td>
-                <td className="py-2 font-mono text-gray-400 text-xs">average across all universities for the same group and year</td>
+                <td className="py-2 font-mono text-gray-400 text-xs">average across all institutions for the same group and year</td>
               </tr>
               <tr>
                 <td className="py-2 pr-4 text-gray-400">Gap</td>
@@ -268,14 +268,14 @@ function HeatmapGuide() {
       <Section title="How to read this view" defaultOpen={true}>
         <ul className="text-sm text-gray-500 space-y-3 list-disc pl-5" style={{ textAlign: 'justify' }}>
           <li className="pl-1">
-            Each row is a university that offers the selected field.
+            Each row is an institution that offers the selected field.
             Rows are colour-coded by risk level:
             <strong className="text-emerald-400"> green</strong> = low risk,
             <strong className="text-amber-400"> amber</strong> = medium,
             <strong className="text-red-400"> red</strong> = high.
           </li>
           <li className="pl-1">
-            <strong className="text-gray-400">Dropout Rate</strong> — the university-wide dropout rate for new domestic students
+            <strong className="text-gray-400">Dropout Rate</strong> — the institution-wide dropout rate for new domestic students
             (not specific to this field, because field-level dropout data isn't published).
           </li>
           <li className="pl-1">
@@ -314,7 +314,7 @@ function HeatmapGuide() {
             </tbody>
           </table>
           <p className="mt-3 italic text-gray-600">
-            The risk score penalises universities that have both a high dropout rate and few graduates. A uni with
+            The risk score penalises institutions that have both a high dropout rate and few graduates. An institution with
             high dropout but lots of graduates will score lower (safer) than one with similar dropout but few graduates.
           </p>
         </div>

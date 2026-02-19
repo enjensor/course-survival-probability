@@ -93,7 +93,7 @@ export default function InstitutionSelector({ institutions, value, onChange, sta
     <div ref={ref} className="relative flex-1 min-w-0">
       <label className="block text-sm font-medium text-gray-400 mb-1">
         <span className="flex items-center gap-2">
-          University
+          Institution
           {stateFilter && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-900/50 border border-indigo-700 text-xs text-indigo-300">
               {stateFilter}
@@ -116,8 +116,8 @@ export default function InstitutionSelector({ institutions, value, onChange, sta
                    text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500
                    focus:border-transparent transition"
         placeholder={stateFilter
-          ? `Search ${institutions.length} universities in ${stateFilter}...`
-          : 'Search for a university...'}
+          ? `Search ${institutions.length} institutions in ${stateFilter}...`
+          : 'Search for an institution...'}
         value={open ? query : selected ? selected.name : query}
         onChange={(e) => {
           setQuery(e.target.value)

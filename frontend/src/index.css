@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+/* Hide scrollbar on the tab switcher while keeping scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

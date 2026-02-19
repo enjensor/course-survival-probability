@@ -88,7 +88,7 @@ export default function AustraliaMap({ selectedState, onStateSelect, stateCounts
         viewBox="-10 -15 470 445"
         className="w-full h-auto"
         role="img"
-        aria-label="Map of Australia — click a state to filter universities"
+        aria-label="Map of Australia — click a state to filter institutions"
       >
         {/* State regions — render order: large states first, small on top */}
         {(['WA', 'QLD', 'SA', 'NT', 'NSW', 'VIC', 'TAS', 'ACT'] as const).map((abbrev) => {
@@ -159,7 +159,7 @@ export default function AustraliaMap({ selectedState, onStateSelect, stateCounts
                 dy={0.5}
                 dx={0.5}
               >
-                {count} {count === 1 ? 'uni' : 'unis'}
+                {count}
               </text>
               <text
                 x={pos.x}
@@ -170,7 +170,7 @@ export default function AustraliaMap({ selectedState, onStateSelect, stateCounts
                 fontWeight={500}
                 fontFamily="ui-sans-serif, system-ui, sans-serif"
               >
-                {count} {count === 1 ? 'uni' : 'unis'}
+                {count}
               </text>
             </g>
           )

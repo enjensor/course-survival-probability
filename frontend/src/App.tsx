@@ -171,57 +171,59 @@ export default function App() {
                 </button>
               </h1>
               <p className="text-sm text-gray-500 mt-0.5">
-                How likely are you to finish? Data-driven completion insights for Australian universities.
+                How likely are you to finish? Data-driven completion insights for Australian higher education.
               </p>
             </div>
 
-            {/* Mode switcher pill */}
-            <div className="flex items-center gap-1 bg-gray-900 rounded-full p-1 border border-gray-800 self-start sm:self-auto whitespace-nowrap">
-              <button
-                onClick={() => setMode('report')}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors
-                  ${mode === 'report'
-                    ? 'bg-indigo-600 text-white'
-                    : 'text-gray-400 hover:text-gray-200'}`}
-              >
-                University Report
-              </button>
-              <button
-                onClick={() => setMode('equity')}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors
-                  ${mode === 'equity'
-                    ? 'bg-indigo-600 text-white'
-                    : 'text-gray-400 hover:text-gray-200'}`}
-              >
-                Equity Report
-              </button>
-              <button
-                onClick={() => setMode('heatmap')}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors
-                  ${mode === 'heatmap'
-                    ? 'bg-indigo-600 text-white'
-                    : 'text-gray-400 hover:text-gray-200'}`}
-              >
-                Explore by Field
-              </button>
-              <button
-                onClick={() => setMode('methodology')}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors
-                  ${mode === 'methodology'
-                    ? 'bg-indigo-600 text-white'
-                    : 'text-gray-400 hover:text-gray-200'}`}
-              >
-                Methodology
-              </button>
-              <button
-                onClick={() => setMode('about')}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors
-                  ${mode === 'about'
-                    ? 'bg-indigo-600 text-white'
-                    : 'text-gray-400 hover:text-gray-200'}`}
-              >
-                About
-              </button>
+            {/* Mode switcher — scrollable on mobile, pill on desktop */}
+            <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide">
+              <div className="flex items-center gap-1 bg-gray-900 rounded-full p-1 border border-gray-800 w-max sm:w-auto">
+                <button
+                  onClick={() => setMode('report')}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap
+                    ${mode === 'report'
+                      ? 'bg-indigo-600 text-white'
+                      : 'text-gray-400 hover:text-gray-200'}`}
+                >
+                  Report
+                </button>
+                <button
+                  onClick={() => setMode('equity')}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap
+                    ${mode === 'equity'
+                      ? 'bg-indigo-600 text-white'
+                      : 'text-gray-400 hover:text-gray-200'}`}
+                >
+                  Equity
+                </button>
+                <button
+                  onClick={() => setMode('heatmap')}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap
+                    ${mode === 'heatmap'
+                      ? 'bg-indigo-600 text-white'
+                      : 'text-gray-400 hover:text-gray-200'}`}
+                >
+                  Fields
+                </button>
+                <button
+                  onClick={() => setMode('methodology')}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap
+                    ${mode === 'methodology'
+                      ? 'bg-indigo-600 text-white'
+                      : 'text-gray-400 hover:text-gray-200'}`}
+                >
+                  Methodology
+                </button>
+                <button
+                  onClick={() => setMode('about')}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap
+                    ${mode === 'about'
+                      ? 'bg-indigo-600 text-white'
+                      : 'text-gray-400 hover:text-gray-200'}`}
+                >
+                  About
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -267,17 +269,17 @@ export default function App() {
         )}
         {mode === 'heatmap' && selectedField === null && !selectedState && (
           <p className="text-xs text-gray-600 mt-2">
-            Select a field of study above to see the risk heatmap for all universities.
+            Select a field of study above to see the risk heatmap for all institutions.
           </p>
         )}
         {mode === 'heatmap' && selectedField === null && selectedState && (
           <p className="text-xs text-gray-600 mt-2">
-            Select a field of study above to see the risk heatmap for {selectedState} universities.
+            Select a field of study above to see the risk heatmap for {selectedState} institutions.
           </p>
         )}
         {mode === 'equity' && selectedInst === null && (
           <p className="text-xs text-gray-600 mt-2">
-            Select a university above to see how it supports students from different equity groups.
+            Select an institution above to see how it supports students from different equity groups.
           </p>
         )}
       </section>
@@ -356,7 +358,7 @@ export default function App() {
                 {/* Getting started instruction */}
                 <div className="mt-10 mb-4 text-center">
                   <p className="text-sm text-gray-400 leading-relaxed">
-                    Pick a university from the dropdown above to get started.
+                    Pick an institution from the dropdown above to get started.
                     <br className="hidden sm:inline" />{' '}
                     Or tap a state on the map below to narrow the list first.
                   </p>
@@ -375,7 +377,7 @@ export default function App() {
                     onClick={() => setMode('report')}
                     className="bg-gray-900 rounded-xl p-4 border border-gray-800 text-left hover:border-indigo-800 transition-colors"
                   >
-                    <h3 className="text-sm font-semibold text-gray-200">University Report</h3>
+                    <h3 className="text-sm font-semibold text-gray-200">Institution Report</h3>
                     <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">
                       Completion rates, dropout risk, and whether students are passing their subjects.
                     </p>
@@ -386,7 +388,7 @@ export default function App() {
                   >
                     <h3 className="text-sm font-semibold text-gray-200">Equity Report</h3>
                     <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">
-                      How well does a university support students from different backgrounds?
+                      How well does an institution support students from different backgrounds?
                     </p>
                   </button>
                   <button
@@ -395,7 +397,7 @@ export default function App() {
                   >
                     <h3 className="text-sm font-semibold text-gray-200">Explore by Field</h3>
                     <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">
-                      Compare all universities side-by-side for your chosen area of study.
+                      Compare all institutions side-by-side for your chosen area of study.
                     </p>
                   </button>
                 </div>
@@ -431,7 +433,7 @@ export default function App() {
             {!heatmapLoading && !heatmapError && selectedField === null && (
               <div className="text-center pt-6 pb-20">
                 <p className="text-gray-500 text-lg">
-                  Select a field of study above to compare all universities at a glance.
+                  Select a field of study above to compare all institutions at a glance.
                 </p>
               </div>
             )}
@@ -469,7 +471,7 @@ export default function App() {
             {!equityLoading && !equityError && selectedInst === null && (
               <div className="text-center pt-6 pb-20">
                 <p className="text-gray-500 text-lg">
-                  Select a university above to see how it supports students from different backgrounds.
+                  Select an institution above to see how it supports students from different backgrounds.
                 </p>
               </div>
             )}

@@ -102,7 +102,7 @@ export default function FieldRanking({ data, institutionId, fieldName, year }: P
             {ordinal(rank)}
           </span>
           <span className="text-sm text-gray-400">
-            of {total} universities
+            of {total} institutions
           </span>
         </div>
 
@@ -136,7 +136,7 @@ export default function FieldRanking({ data, institutionId, fieldName, year }: P
       </div>
 
       <p className="text-xs text-gray-600">
-        Graduation rate = graduates per 100 enrolled students{year ? ` (${year} data)` : ''}. Universities with fewer than 50 students excluded.
+        Graduation rate = graduates per 100 enrolled students{year ? ` (${year} data)` : ''}. Institutions with fewer than 50 students excluded.
       </p>
     </div>
   )

@@ -77,7 +77,7 @@ function SummaryBar({ summary, fieldName }: { summary: HeatmapData['summary']; f
         <div className="flex gap-3 flex-wrap">
           <div className="bg-gray-800 rounded-xl px-4 py-2 text-center">
             <p className="text-lg font-bold text-gray-100">{summary.num_institutions}</p>
-            <p className="text-xs text-gray-500">Universities</p>
+            <p className="text-xs text-gray-500">Institutions</p>
           </div>
           <div className="bg-gray-800 rounded-xl px-4 py-2 text-center">
             <p className="text-lg font-bold text-amber-400">{summary.avg_risk.toFixed(1)}</p>
@@ -293,7 +293,7 @@ export default function HeatmapView({ data, onSelectInstitution, stateFilter }: 
 
       <p className="text-xs text-gray-600 pt-2">
         Risk score = dropout rate &times; (1 &minus; graduation rate). Lower is safer.
-        Click any row to see that university's full report with this field pre-selected.
+        Click any row to see that institution's full report with this field pre-selected.
       </p>
     </div>
   )
