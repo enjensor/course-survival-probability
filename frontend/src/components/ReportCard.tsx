@@ -113,11 +113,9 @@ const LEVEL_KEYS = ['postgrad_research', 'postgrad_coursework', 'bachelor', 'sub
 function StackedBar({
   label,
   data,
-  pctKey,
 }: {
   label: string
   data: Record<string, number>
-  pctKey: 'pct_postgrad_research' | 'pct_postgrad_coursework' | 'pct_bachelor' | 'pct_sub_bachelor'
 }) {
   return (
     <div>
@@ -169,9 +167,9 @@ function CourseLevelChart({
 
       {/* Stacked bars */}
       <div className="space-y-3">
-        <StackedBar label="This institution" data={enrolment as unknown as Record<string, number>} pctKey="pct_bachelor" />
+        <StackedBar label="This institution" data={enrolment as unknown as Record<string, number>} />
         {nationalAvg && (
-          <StackedBar label="National average" data={nationalAvg as unknown as Record<string, number>} pctKey="pct_bachelor" />
+          <StackedBar label="National average" data={nationalAvg as unknown as Record<string, number>} />
         )}
       </div>
 
