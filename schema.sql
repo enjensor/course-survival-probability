@@ -97,3 +97,18 @@ CREATE INDEX IF NOT EXISTS idx_comp_inst_year_field
     ON completions(institution_id, year, field_id);
 CREATE INDEX IF NOT EXISTS idx_alias_lookup
     ON institution_aliases(alias);
+
+-- Core 5: course-level enrolment/completion mix (Sections 2 & 14)
+CREATE TABLE IF NOT EXISTS course_level_mix (
+    id              INTEGER PRIMARY KEY,
+    institution_id  INTEGER NOT NULL REFERENCES institutions(id),
+    year            INTEGER NOT NULL,
+    measure         TEXT NOT NULL,           -- 'enrolment' or 'completion'
+    postgrad_research   INTEGER,
+    postgrad_coursework INTEGER,
+    bachelor            INTEGER,
+    sub_bachelor        INTEGER,
+    total               INTEGER,
+    source_file     TEXT,
+    UNIQUE(institution_id, year, measure)
+);

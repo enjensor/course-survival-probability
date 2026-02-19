@@ -101,6 +101,41 @@ export interface InternationalData {
   trend: Array<{ year: number; rate: number }>
 }
 
+export interface CourseLevelBreakdown {
+  postgrad_research: number | null
+  postgrad_coursework: number | null
+  bachelor: number | null
+  sub_bachelor: number | null
+  total: number
+  year: number
+  pct_postgrad_research: number
+  pct_postgrad_coursework: number
+  pct_bachelor: number
+  pct_sub_bachelor: number
+}
+
+export interface CourseLevelPcts {
+  pct_postgrad_research: number
+  pct_postgrad_coursework: number
+  pct_bachelor: number
+  pct_sub_bachelor: number
+}
+
+export interface CourseLevelEfficiency {
+  postgrad_research: number | null
+  postgrad_coursework: number | null
+  bachelor: number | null
+  sub_bachelor: number | null
+  overall: number
+}
+
+export interface CourseLevelData {
+  enrolment: CourseLevelBreakdown | null
+  completion: CourseLevelBreakdown | null
+  national_avg_enrolment: CourseLevelPcts | null
+  efficiency: CourseLevelEfficiency | null
+}
+
 export interface ReportData {
   institution: { id: number; name: string; state: string; provider_type: string }
   field: { id: number; name: string } | null
@@ -112,6 +147,7 @@ export interface ReportData {
   completion_timeline: CompletionTimeline
   field_context: FieldContext | null
   international: InternationalData | null
+  course_level: CourseLevelData | null
 }
 
 /* ── Heatmap (Explore by Field) types ── */

@@ -131,6 +131,11 @@ def compute_report(
     # ------------------------------------------------------------------
     international = _compute_international(conn, institution_id)
 
+    # ------------------------------------------------------------------
+    # Course level mix (undergrad vs postgrad breakdown)
+    # ------------------------------------------------------------------
+    course_level = _compute_course_level(conn, institution_id)
+
     return {
         "institution": institution,
         "field": field_info,
@@ -142,6 +147,7 @@ def compute_report(
         "completion_timeline": timeline,
         "field_context": field_context,
         "international": international,
+        "course_level": course_level,
     }
 
 
@@ -438,6 +444,98 @@ def _compute_international(conn: sqlite3.Connection, inst_id: int) -> Optional[D
             "national_avg": success_nat_avg,
         },
         "trend": trend,
+    }
+
+
+def _compute_course_level(conn: sqlite3.Connection, inst_id: int) -> Optional[Dict[str, Any]]:
+    """
+    Compute course-level mix (undergrad vs postgrad breakdown).
+
+    Returns enrolment and completion counts by broad course level, along with
+    percentage shares and national averages for comparison.
+    Returns None if no course-level data exists for this institution.
+    """
+    enrol = conn.execute(
+        """SELECT postgrad_research, postgrad_coursework, bachelor, sub_bachelor, total, year
+           FROM course_level_mix
+           WHERE institution_id = ? AND measure = 'enrolment'
+           ORDER BY year DESC LIMIT 1""",
+        (inst_id,),
+    ).fetchone()
+
+    comp = conn.execute(
+        """SELECT postgrad_research, postgrad_coursework, bachelor, sub_bachelor, total, year
+           FROM course_level_mix
+           WHERE institution_id = ? AND measure = 'completion'
+           ORDER BY year DESC LIMIT 1""",
+        (inst_id,),
+    ).fetchone()
+
+    if not enrol and not comp:
+        return None
+
+    def _to_pcts(row) -> Dict[str, Any]:
+        """Convert raw counts to a dict with counts and percentages."""
+        if not row:
+            return None
+        total = row["total"] or 0
+        if total == 0:
+            return None
+        return {
+            "postgrad_research": row["postgrad_research"],
+            "postgrad_coursework": row["postgrad_coursework"],
+            "bachelor": row["bachelor"],
+            "sub_bachelor": row["sub_bachelor"],
+            "total": total,
+            "year": row["year"],
+            "pct_postgrad_research": round((row["postgrad_research"] or 0) / total * 100, 1),
+            "pct_postgrad_coursework": round((row["postgrad_coursework"] or 0) / total * 100, 1),
+            "pct_bachelor": round((row["bachelor"] or 0) / total * 100, 1),
+            "pct_sub_bachelor": round((row["sub_bachelor"] or 0) / total * 100, 1),
+        }
+
+    enrol_data = _to_pcts(enrol)
+    comp_data = _to_pcts(comp)
+
+    # Compute national averages for enrolment percentages
+    nat_enrol = conn.execute(
+        """SELECT SUM(postgrad_research) as pr, SUM(postgrad_coursework) as pc,
+                  SUM(bachelor) as ba, SUM(sub_bachelor) as sb, SUM(total) as t
+           FROM course_level_mix
+           WHERE measure = 'enrolment' AND year = (
+               SELECT MAX(year) FROM course_level_mix WHERE measure = 'enrolment'
+           )""",
+    ).fetchone()
+
+    nat_enrol_pcts = None
+    if nat_enrol and nat_enrol["t"] and nat_enrol["t"] > 0:
+        nt = nat_enrol["t"]
+        nat_enrol_pcts = {
+            "pct_postgrad_research": round((nat_enrol["pr"] or 0) / nt * 100, 1),
+            "pct_postgrad_coursework": round((nat_enrol["pc"] or 0) / nt * 100, 1),
+            "pct_bachelor": round((nat_enrol["ba"] or 0) / nt * 100, 1),
+            "pct_sub_bachelor": round((nat_enrol["sb"] or 0) / nt * 100, 1),
+        }
+
+    # Compute a simple "completion efficiency" per level:
+    # completions / enrolments as a ratio — how many completions per student enrolled
+    efficiency = None
+    if enrol_data and comp_data and enrol_data["total"] > 0:
+        levels = ["postgrad_research", "postgrad_coursework", "bachelor", "sub_bachelor"]
+        eff = {}
+        for lev in levels:
+            e = enrol_data.get(lev) or 0
+            c = comp_data.get(lev) or 0
+            eff[lev] = round(c / e * 100, 1) if e > 0 else None
+        # Overall
+        eff["overall"] = round(comp_data["total"] / enrol_data["total"] * 100, 1)
+        efficiency = eff
+
+    return {
+        "enrolment": enrol_data,
+        "completion": comp_data,
+        "national_avg_enrolment": nat_enrol_pcts,
+        "efficiency": efficiency,
     }
 
 

@@ -535,6 +535,65 @@ export default function DataIntegrityPage() {
         </div>
       </SectionCard>
 
+      {/* ── Course Level Mix ── */}
+      <SectionCard id="course-level">
+        <h3 className="text-base font-semibold text-gray-200 mb-3">Course Level Mix</h3>
+        <div className="space-y-3">
+          <MetricBlock title="What it measures" subtitle="Sections 2 & 14 — Enrolment and completion by course level">
+            <p>
+              Shows how an institution's student body is distributed across broad course levels:
+              Postgraduate by Research (PhD, Masters by Research), Postgraduate by Coursework
+              (coursework masters, grad diplomas, grad certificates), Bachelor (undergraduate degrees),
+              and Sub-Bachelor (diplomas, associate degrees, enabling courses).
+            </p>
+          </MetricBlock>
+
+          <MetricBlock title="Why it matters">
+            <p>
+              A university that is 60% postgraduate may have a very different character to one that is
+              90% bachelor students. For a prospective undergrad, seeing that an institution is heavily
+              postgrad-focused may signal a research-intensive environment with different support
+              structures. Conversely, a heavily undergraduate institution may prioritise teaching and
+              first-year support.
+            </p>
+          </MetricBlock>
+
+          <MetricBlock title="Data sources">
+            <div className="space-y-2 text-xs">
+              <p>
+                <span className="text-gray-300 font-medium">Enrolments</span> — Section 2, Table 2.5:
+                All Students by State, Higher Education Institution and Broad Level of Course (2024).
+              </p>
+              <p>
+                <span className="text-gray-300 font-medium">Completions</span> — Section 14, Table 14.8:
+                Award Course Completions for All Students by State, Higher Education Institution and Broad
+                Level of Course (2024).
+              </p>
+              <p>
+                National averages are computed from the sum of all institutions in the dataset for the
+                same year.
+              </p>
+            </div>
+          </MetricBlock>
+
+          <MetricBlock title="Limitations">
+            <div className="space-y-2 text-xs">
+              <p>
+                <span className="text-amber-400 font-medium">Cross-sectional:</span> The graduates-to-enrolled
+                ratio is a snapshot (graduates and enrolments in the same year), not a cohort tracking measure.
+                A ratio of 25% does not mean 25% of students graduate — it reflects different cohort sizes,
+                course durations, and enrolment timing.
+              </p>
+              <p>
+                <span className="text-amber-400 font-medium">Aggregated rows excluded:</span> Non-University
+                Higher Education Institutions are grouped by the Department and excluded from individual
+                institution comparisons.
+              </p>
+            </div>
+          </MetricBlock>
+        </div>
+      </SectionCard>
+
       {/* ── Known Limitations ── */}
       <SectionCard id="limitations">
         <h3 className="text-base font-semibold text-gray-200 mb-3">Known Limitations</h3>

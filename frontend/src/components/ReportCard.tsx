@@ -1,4 +1,4 @@
-import type { ReportData, TrendPoint } from '../types'
+import type { ReportData, TrendPoint, CourseLevelBreakdown, CourseLevelPcts } from '../types'
 import CompletionGauge from './CompletionGauge'
 import RiskBadge from './RiskBadge'
 import TrendChart from './TrendChart'
@@ -88,6 +88,188 @@ function MiniSparkline({
         <span>{first.toLocaleString()}</span>
         <span>{last.toLocaleString()}</span>
       </div>
+    </div>
+  )
+}
+
+/* ── Course Level Mix chart ───────────────────────────────────────── */
+
+const LEVEL_LABELS: Record<string, string> = {
+  postgrad_research: 'PG Research',
+  postgrad_coursework: 'PG Coursework',
+  bachelor: 'Bachelor',
+  sub_bachelor: 'Sub-Bachelor',
+}
+
+const LEVEL_COLORS: Record<string, string> = {
+  postgrad_research: '#818cf8',   // indigo-400
+  postgrad_coursework: '#a78bfa', // violet-400
+  bachelor: '#34d399',            // emerald-400
+  sub_bachelor: '#fbbf24',        // amber-400
+}
+
+const LEVEL_KEYS = ['postgrad_research', 'postgrad_coursework', 'bachelor', 'sub_bachelor'] as const
+
+function StackedBar({
+  label,
+  data,
+  pctKey,
+}: {
+  label: string
+  data: Record<string, number>
+  pctKey: 'pct_postgrad_research' | 'pct_postgrad_coursework' | 'pct_bachelor' | 'pct_sub_bachelor'
+}) {
+  return (
+    <div>
+      <p className="text-xs text-gray-500 mb-1.5">{label}</p>
+      <div className="flex h-5 rounded-full overflow-hidden bg-gray-800">
+        {LEVEL_KEYS.map((key) => {
+          const pct = data[`pct_${key}`]
+          if (!pct || pct < 0.5) return null
+          return (
+            <div
+              key={key}
+              className="relative group"
+              style={{ width: `${pct}%`, backgroundColor: LEVEL_COLORS[key] }}
+            >
+              {pct >= 8 && (
+                <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-gray-900">
+                  {pct.toFixed(0)}%
+                </span>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function CourseLevelChart({
+  enrolment,
+  completion,
+  nationalAvg,
+  efficiency,
+}: {
+  enrolment: CourseLevelBreakdown
+  completion: CourseLevelBreakdown | null
+  nationalAvg: CourseLevelPcts | null
+  efficiency: { postgrad_research: number | null; postgrad_coursework: number | null; bachelor: number | null; sub_bachelor: number | null; overall: number } | null
+}) {
+  return (
+    <div className="bg-gray-900 rounded-2xl p-5 space-y-4">
+      <p className="text-xs text-gray-500 leading-relaxed">
+        How this institution's student body is distributed across undergraduate and postgraduate courses,
+        compared to the national average.
+      </p>
+
+      {/* Stacked bars */}
+      <div className="space-y-3">
+        <StackedBar label="This institution" data={enrolment as unknown as Record<string, number>} pctKey="pct_bachelor" />
+        {nationalAvg && (
+          <StackedBar label="National average" data={nationalAvg as unknown as Record<string, number>} pctKey="pct_bachelor" />
+        )}
+      </div>
+
+      {/* Legend */}
+      <div className="flex flex-wrap gap-x-4 gap-y-1">
+        {LEVEL_KEYS.map((key) => (
+          <div key={key} className="flex items-center gap-1.5">
+            <span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: LEVEL_COLORS[key] }} />
+            <span className="text-xs text-gray-500">{LEVEL_LABELS[key]}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Detail table */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="text-gray-500 border-b border-gray-800">
+              <th className="text-left py-1.5 font-medium">Level</th>
+              <th className="text-right py-1.5 font-medium">Enrolled</th>
+              <th className="text-right py-1.5 font-medium">%</th>
+              {completion && <th className="text-right py-1.5 font-medium">Graduates</th>}
+              {completion && <th className="text-right py-1.5 font-medium">%</th>}
+              {nationalAvg && <th className="text-right py-1.5 font-medium">Nat. avg %</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {LEVEL_KEYS.map((key) => {
+              const enrolCount = enrolment[key] ?? 0
+              const enrolPct = enrolment[`pct_${key}` as keyof CourseLevelBreakdown] as number
+              const compCount = completion?.[key] ?? null
+              const compPct = completion?.[`pct_${key}` as keyof CourseLevelBreakdown] as number | undefined
+              const natPct = nationalAvg?.[`pct_${key}` as keyof CourseLevelPcts]
+              const diff = natPct != null ? enrolPct - natPct : null
+
+              return (
+                <tr key={key} className="border-b border-gray-800/50">
+                  <td className="py-1.5 text-gray-300 flex items-center gap-1.5">
+                    <span className="inline-block w-2 h-2 rounded-sm" style={{ backgroundColor: LEVEL_COLORS[key] }} />
+                    {LEVEL_LABELS[key]}
+                  </td>
+                  <td className="text-right py-1.5 text-gray-300 tabular-nums">
+                    {enrolCount.toLocaleString()}
+                  </td>
+                  <td className="text-right py-1.5 text-gray-300 tabular-nums">
+                    {enrolPct.toFixed(1)}%
+                  </td>
+                  {completion && (
+                    <td className="text-right py-1.5 text-gray-300 tabular-nums">
+                      {compCount !== null ? compCount.toLocaleString() : '—'}
+                    </td>
+                  )}
+                  {completion && (
+                    <td className="text-right py-1.5 text-gray-300 tabular-nums">
+                      {compPct != null ? `${compPct.toFixed(1)}%` : '—'}
+                    </td>
+                  )}
+                  {nationalAvg && (
+                    <td className="text-right py-1.5 tabular-nums">
+                      <span className="text-gray-500">{natPct?.toFixed(1)}%</span>
+                      {diff !== null && Math.abs(diff) >= 1 && (
+                        <span className={`ml-1 text-[10px] ${diff > 0 ? 'text-indigo-400' : 'text-gray-600'}`}>
+                          {diff > 0 ? '+' : ''}{diff.toFixed(0)}
+                        </span>
+                      )}
+                    </td>
+                  )}
+                </tr>
+              )
+            })}
+            {/* Total row */}
+            <tr className="font-medium">
+              <td className="py-1.5 text-gray-200">Total</td>
+              <td className="text-right py-1.5 text-gray-200 tabular-nums">
+                {enrolment.total.toLocaleString()}
+              </td>
+              <td className="text-right py-1.5 text-gray-200 tabular-nums">100%</td>
+              {completion && (
+                <td className="text-right py-1.5 text-gray-200 tabular-nums">
+                  {completion.total.toLocaleString()}
+                </td>
+              )}
+              {completion && (
+                <td className="text-right py-1.5 text-gray-200 tabular-nums">100%</td>
+              )}
+              {nationalAvg && <td />}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Efficiency note */}
+      {efficiency && (
+        <div className="pt-1">
+          <p className="text-xs text-gray-600 leading-relaxed">
+            <span className="text-gray-400 font-medium">Graduates-to-enrolled ratio:</span>{' '}
+            {efficiency.overall}% overall.
+            This is a cross-sectional snapshot (graduates in {enrolment.year} vs students enrolled in {enrolment.year}),
+            not a cohort completion rate.
+          </p>
+        </div>
+      )}
     </div>
   )
 }
@@ -279,6 +461,26 @@ export default function ReportCard({ data }: Props) {
         <TrendChart data={data.trend} />
         <CompletionTimeline data={data.completion_timeline} />
       </div>
+
+      {/* ── Course Level Mix ── */}
+      {data.course_level && data.course_level.enrolment && (
+        <>
+          <SectionLabel>
+            Course Level Mix
+            {data.course_level.enrolment.year && (
+              <span className="ml-2 text-gray-600 normal-case tracking-normal font-normal">
+                — {data.course_level.enrolment.year} data
+              </span>
+            )}
+          </SectionLabel>
+          <CourseLevelChart
+            enrolment={data.course_level.enrolment}
+            completion={data.course_level.completion}
+            nationalAvg={data.course_level.national_avg_enrolment}
+            efficiency={data.course_level.efficiency}
+          />
+        </>
+      )}
 
       {/* ── International Students ── */}
       {data.international && (
