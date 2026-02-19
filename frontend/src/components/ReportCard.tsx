@@ -102,8 +102,8 @@ const LEVEL_LABELS: Record<string, string> = {
 }
 
 const LEVEL_COLORS: Record<string, string> = {
-  postgrad_research: '#818cf8',   // indigo-400
-  postgrad_coursework: '#a78bfa', // violet-400
+  postgrad_research: '#6366f1',   // indigo-500
+  postgrad_coursework: '#c084fc', // purple-400
   bachelor: '#34d399',            // emerald-400
   sub_bachelor: '#fbbf24',        // amber-400
 }
@@ -122,15 +122,19 @@ function StackedBar({
   return (
     <div>
       <p className="text-xs text-gray-500 mb-1.5">{label}</p>
-      <div className="flex h-5 rounded-full overflow-hidden bg-gray-800">
-        {LEVEL_KEYS.map((key) => {
+      <div className="flex h-6 rounded-full overflow-hidden bg-gray-800">
+        {LEVEL_KEYS.map((key, i) => {
           const pct = data[`pct_${key}`]
           if (!pct || pct < 0.5) return null
           return (
             <div
               key={key}
-              className="relative group"
-              style={{ width: `${pct}%`, backgroundColor: LEVEL_COLORS[key] }}
+              className="relative"
+              style={{
+                width: `${pct}%`,
+                backgroundColor: LEVEL_COLORS[key],
+                borderRight: i < LEVEL_KEYS.length - 1 ? '2px solid rgb(17 24 39)' : 'none',
+              }}
             >
               {pct >= 8 && (
                 <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-gray-900">

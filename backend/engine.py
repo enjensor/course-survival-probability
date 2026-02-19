@@ -475,23 +475,35 @@ def _compute_course_level(conn: sqlite3.Connection, inst_id: int) -> Optional[Di
         return None
 
     def _to_pcts(row) -> Dict[str, Any]:
-        """Convert raw counts to a dict with counts and percentages."""
+        """Convert raw counts to a dict with counts and percentages.
+
+        Percentages are computed from the sum of the four displayed
+        categories (not the grand total, which may include enabling
+        courses and non-award/microcredentials).  This ensures the
+        stacked bar always fills to 100%.
+        """
         if not row:
             return None
         total = row["total"] or 0
         if total == 0:
             return None
+        pr = row["postgrad_research"] or 0
+        pc = row["postgrad_coursework"] or 0
+        ba = row["bachelor"] or 0
+        sb = row["sub_bachelor"] or 0
+        displayed_sum = pr + pc + ba + sb
+        denom = displayed_sum if displayed_sum > 0 else 1
         return {
-            "postgrad_research": row["postgrad_research"],
-            "postgrad_coursework": row["postgrad_coursework"],
-            "bachelor": row["bachelor"],
-            "sub_bachelor": row["sub_bachelor"],
+            "postgrad_research": pr,
+            "postgrad_coursework": pc,
+            "bachelor": ba,
+            "sub_bachelor": sb,
             "total": total,
             "year": row["year"],
-            "pct_postgrad_research": round((row["postgrad_research"] or 0) / total * 100, 1),
-            "pct_postgrad_coursework": round((row["postgrad_coursework"] or 0) / total * 100, 1),
-            "pct_bachelor": round((row["bachelor"] or 0) / total * 100, 1),
-            "pct_sub_bachelor": round((row["sub_bachelor"] or 0) / total * 100, 1),
+            "pct_postgrad_research": round(pr / denom * 100, 1),
+            "pct_postgrad_coursework": round(pc / denom * 100, 1),
+            "pct_bachelor": round(ba / denom * 100, 1),
+            "pct_sub_bachelor": round(sb / denom * 100, 1),
         }
 
     enrol_data = _to_pcts(enrol)
@@ -509,13 +521,19 @@ def _compute_course_level(conn: sqlite3.Connection, inst_id: int) -> Optional[Di
 
     nat_enrol_pcts = None
     if nat_enrol and nat_enrol["t"] and nat_enrol["t"] > 0:
-        nt = nat_enrol["t"]
-        nat_enrol_pcts = {
-            "pct_postgrad_research": round((nat_enrol["pr"] or 0) / nt * 100, 1),
-            "pct_postgrad_coursework": round((nat_enrol["pc"] or 0) / nt * 100, 1),
-            "pct_bachelor": round((nat_enrol["ba"] or 0) / nt * 100, 1),
-            "pct_sub_bachelor": round((nat_enrol["sb"] or 0) / nt * 100, 1),
-        }
+        # Use four-category sum as denominator so national bar also fills to 100%
+        n_pr = nat_enrol["pr"] or 0
+        n_pc = nat_enrol["pc"] or 0
+        n_ba = nat_enrol["ba"] or 0
+        n_sb = nat_enrol["sb"] or 0
+        n_denom = n_pr + n_pc + n_ba + n_sb
+        if n_denom > 0:
+            nat_enrol_pcts = {
+                "pct_postgrad_research": round(n_pr / n_denom * 100, 1),
+                "pct_postgrad_coursework": round(n_pc / n_denom * 100, 1),
+                "pct_bachelor": round(n_ba / n_denom * 100, 1),
+                "pct_sub_bachelor": round(n_sb / n_denom * 100, 1),
+            }
 
     # Compute a simple "completion efficiency" per level:
     # completions / enrolments as a ratio — how many completions per student enrolled
