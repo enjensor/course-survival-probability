@@ -420,8 +420,8 @@ function CourseCard({
             {/* Collapsed feature hints — show what's inside */}
             {!expanded && (
               <div className="flex flex-wrap gap-1.5 mt-1.5">
-                {course.total_students != null && course.total_students > 0 && (
-                  <span className="text-[10px] text-gray-500">{course.total_students.toLocaleString()} students</span>
+                {course.total_students != null && Number(course.total_students) > 0 && (
+                  <span className="text-[10px] text-gray-500">{Number(course.total_students).toLocaleString()} students</span>
                 )}
                 {(course.campuses?.length ?? 0) > 1 && (
                   <span className="text-[10px] text-gray-600">&middot; campus ATARs</span>
