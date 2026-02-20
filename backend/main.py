@@ -21,7 +21,7 @@ from engine import compute_report, compute_field_heatmap, compute_equity_report,
 app = FastAPI(
     title="Course Survival Probability Engine",
     description="Estimates completion probability for Australian higher education courses",
-    version="1.0.0",
+    version="1.1.0",
 )
 
 # CORS — only needed for local dev (Vite on :5173 → FastAPI on :8000)
@@ -33,14 +33,18 @@ app.add_middleware(
 )
 
 
-# Cache control — data updates ~annually so API responses can be cached
+# Cache control — allow caching but force revalidation so deploys take effect immediately
+APP_VERSION = "1.1"
+
 @app.middleware("http")
 async def add_cache_headers(request: Request, call_next) -> Response:
     response = await call_next(request)
     path = request.url.path
     if path.startswith("/api/") and path != "/api/health":
-        # Cache data endpoints for 1 hour; stale-while-revalidate for 24 hours
-        response.headers["Cache-Control"] = "public, max-age=3600, stale-while-revalidate=86400"
+        # no-cache = browser may cache but must revalidate on every request.
+        # ETag on version ensures a deploy instantly invalidates all cached responses.
+        response.headers["Cache-Control"] = "public, no-cache"
+        response.headers["ETag"] = f'"{APP_VERSION}-{path}"'
     return response
 
 
