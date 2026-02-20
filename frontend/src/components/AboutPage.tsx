@@ -81,6 +81,7 @@ export default function AboutPage() {
               <li>How many students pass their subjects</li>
               <li>How different fields compare across universities</li>
               <li>How well universities support students from different backgrounds</li>
+              <li>ATAR and selection rank profiles for individual courses (NSW/ACT)</li>
             </ul>
           </Prose>
         </div>
@@ -159,8 +160,10 @@ export default function AboutPage() {
         <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
           <Prose>
             <p>
-              Everything in this app comes from the Australian Department of Education's official
-              statistics. Every university is required to report this data annually. We use:
+              Most data comes from the Australian Department of Education's official statistics,
+              which every university is required to report annually. Course-level data (ATAR
+              profiles and entry requirements) is sourced from the Universities Admissions Centre
+              (UAC), covering NSW and ACT institutions. We use:
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
@@ -170,6 +173,7 @@ export default function AboutPage() {
                 { label: 'Completion Rates', desc: 'Of the students who started together, how many finished within 4, 6, or 9 years.' },
                 { label: 'Equity Data', desc: 'How well universities support students from different backgrounds — regional, lower-income, First Nations, disability, and more.' },
                 { label: 'Risk Scores', desc: 'A combined measure we calculate from dropout rates and graduation rates, so you can compare at a glance.' },
+                { label: 'Courses & ATAR', desc: 'Course listings with ATAR profiles, selection ranks, student admission breakdowns, and cross-institution comparisons — sourced from UAC (NSW/ACT).' },
               ].map((item) => (
                 <div key={item.label} className="bg-gray-800 rounded-xl p-4">
                   <h4 className="text-sm font-semibold text-gray-200">{item.label}</h4>
@@ -205,9 +209,9 @@ export default function AboutPage() {
             <div className="space-y-3">
               {[
                 {
-                  status: 'planned',
+                  status: 'partial',
                   title: 'ATAR & Entry Requirements',
-                  desc: 'Selection rank data so you can see the typical entry scores alongside outcome data — helping you find unis where you\'re likely to get in and succeed.',
+                  desc: 'Selection rank data so you can see the typical entry scores alongside outcome data — helping you find unis where you\'re likely to get in and succeed. Now live for NSW/ACT institutions (UAC region). Other states (VTAC, QTAC, SATAC, TISC) to follow.',
                 },
                 {
                   status: 'planned',
@@ -237,7 +241,7 @@ export default function AboutPage() {
               ].map((item) => (
                 <div key={item.title} className="bg-gray-800 rounded-xl p-4 flex gap-3">
                   <div className="shrink-0 mt-0.5">
-                    <span className={`inline-block w-2 h-2 rounded-full ${item.status === 'done' ? 'bg-emerald-500' : item.status === 'planned' ? 'bg-indigo-500' : 'bg-gray-600'}`} />
+                    <span className={`inline-block w-2 h-2 rounded-full ${item.status === 'done' ? 'bg-emerald-500' : item.status === 'partial' ? 'bg-amber-500' : item.status === 'planned' ? 'bg-indigo-500' : 'bg-gray-600'}`} />
                   </div>
                   <div>
                     <h4 className="text-sm font-semibold text-gray-200">{item.title}</h4>
@@ -272,9 +276,11 @@ export default function AboutPage() {
           </p>
           <p className="text-sm text-gray-400 leading-relaxed text-justify">
             <strong className="text-gray-300">Data limitations.</strong>{' '}
-            All data is sourced from the Australian Department of Education's Higher Education
-            Statistics Collection. It is subject to the limitations, definitions, and collection
-            methodologies of the original source. Some data points may be suppressed, unavailable,
+            Outcome data is sourced from the Australian Department of Education's Higher Education
+            Statistics Collection. Course-level ATAR and entry requirement data is sourced from
+            the Universities Admissions Centre (UAC) and is currently limited to NSW and ACT
+            institutions. All data is subject to the limitations, definitions, and collection
+            methodologies of the original sources. Some data points may be suppressed, unavailable,
             or not directly comparable across institutions due to differences in student cohort
             size, institutional structure, or reporting practices. Historical data reflects the
             year of publication and may not represent current conditions.
@@ -375,16 +381,86 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* ── How it was built — human + AI collaboration ── */}
+      <section className="space-y-4">
+        <SectionHeading>How It Was Built</SectionHeading>
+        <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800 space-y-4">
+          <Prose>
+            <p>
+              This app was built through a deliberate collaboration between human expertise and
+              AI capability. Each brings something the other cannot.
+            </p>
+          </Prose>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-gray-800 rounded-xl overflow-hidden border border-gray-800">
+            {/* Human column */}
+            <div className="bg-gray-900 p-5 space-y-4">
+              <div>
+                <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wider">Human</p>
+                <p className="text-sm text-gray-300 font-medium mt-1">Dr Jason Ensor</p>
+              </div>
+              <div className="space-y-3">
+                {[
+                  { area: 'Domain expertise', detail: 'Three decades in Australian higher education — understanding what the data means, where it misleads, and what students actually need to know.' },
+                  { area: 'Problem framing', detail: 'Identifying the gap: publicly funded data that should be accessible to students but isn\'t. Defining the core questions the app should answer.' },
+                  { area: 'Data interpretation', detail: 'Recognising that an ATAR of 49 at one institution doesn\'t mean what it appears to. Knowing which comparisons are meaningful and which are misleading.' },
+                  { area: 'Quality judgement', detail: 'Evaluating every output against lived experience — catching errors, questioning assumptions, and insisting on accuracy over speed.' },
+                  { area: 'Design direction', detail: 'Deciding what matters to a student choosing a university. Prioritising clarity over features, honesty over polish.' },
+                ].map((item) => (
+                  <div key={item.area}>
+                    <p className="text-xs font-semibold text-gray-300">{item.area}</p>
+                    <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{item.detail}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* AI column */}
+            <div className="bg-gray-900 p-5 space-y-4">
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">AI</p>
+                <p className="text-sm text-gray-300 font-medium mt-1">Claude (Anthropic)</p>
+              </div>
+              <div className="space-y-3">
+                {[
+                  { area: 'Code generation', detail: 'Writing the full-stack application — React frontend, Python backend, SQL queries, and API design — translating requirements into working software.' },
+                  { area: 'Data processing', detail: 'Ingesting, cleaning, and structuring government datasets. Parsing inconsistent formats, handling edge cases, and building aggregation pipelines.' },
+                  { area: 'Pattern implementation', detail: 'Implementing campus deduplication, discipline-level matching, ATAR trend analysis, and cross-institution comparison logic from specifications.' },
+                  { area: 'Iteration speed', detail: 'Rapidly prototyping features, testing approaches, and refining implementations through continuous feedback — enabling dozens of iterations per session.' },
+                  { area: 'Interface execution', detail: 'Building the visual layer — responsive layouts, accessible components, interactive charts, and the information design that presents the data clearly.' },
+                ].map((item) => (
+                  <div key={item.area}>
+                    <p className="text-xs font-semibold text-gray-300">{item.area}</p>
+                    <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{item.detail}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700">
+            <p className="text-xs text-gray-400 leading-relaxed text-justify">
+              Neither side works alone. The AI cannot know that UAC lists the same nursing degree
+              under four campus codes, or that comparing Law against all of &ldquo;Society &amp; Culture&rdquo;
+              is misleading. The human cannot write a full-stack application in an afternoon. The
+              combination produces something neither could build independently — and the result is
+              better for it.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* ── Source attribution ── */}
       <footer className="text-xs text-gray-500 text-center pb-4 space-y-1">
         <p>
-          Data source: Australian Department of Education — Higher Education Statistics Collection.
+          Data sources: Australian Department of Education — Higher Education Statistics Collection;
+          Universities Admissions Centre (UAC) — NSW/ACT course and ATAR data.
         </p>
         <p>
           All data is publicly available and published under Australian Government open data policy.
         </p>
         <p className="text-gray-700 pt-1">
-          v1.0 &middot; Built by{' '}
+          v1.1 &middot; Built by{' '}
           <a
             href="https://linkedin.com/in/jasondensor/"
             target="_blank"

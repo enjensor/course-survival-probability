@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 interface Props {
-  mode: 'report' | 'heatmap' | 'equity'
+  mode: 'report' | 'heatmap' | 'equity' | 'courses'
 }
 
 /* ── Collapsible section wrapper ─────────────────────────────────── */
@@ -323,6 +323,112 @@ function HeatmapGuide() {
   )
 }
 
+/* ── Courses & ATAR guide ────────────────────────────────────────── */
+function CoursesGuide() {
+  return (
+    <>
+      <Section title="What the numbers mean" defaultOpen={true}>
+        <ul className="text-sm text-gray-500 space-y-3 list-disc pl-5" style={{ textAlign: 'justify' }}>
+          <li className="pl-1">
+            <strong className="text-gray-400">ATAR (Lowest / Median / Highest)</strong> — the Australian Tertiary Admission Rank
+            of students admitted in the most recent intake. The <em>lowest</em> is the minimum ATAR that received an offer.
+            Colour-coded: <strong className="text-emerald-400">green</strong> (&lt;60),{' '}
+            <strong className="text-amber-400">amber</strong> (60–80),{' '}
+            <strong className="text-red-400">red</strong> (80–95),{' '}
+            <strong className="text-indigo-400">indigo</strong> (95+).
+          </li>
+          <li className="pl-1">
+            <strong className="text-gray-400">Selection Rank</strong> — similar to ATAR but may include adjustment factors
+            (e.g. bonus points for regional students, subject alignment, or equity schemes). Can be higher than the raw ATAR.
+          </li>
+          <li className="pl-1">
+            <strong className="text-gray-400">Fee type</strong> — <strong className="text-gray-400">CSP</strong> (Commonwealth Supported Place — government-subsidised)
+            or <strong className="text-gray-400">DFEE</strong> (Domestic Full Fee — student pays full cost).
+          </li>
+        </ul>
+      </Section>
+
+      <Section title="Student profile bar">
+        <ul className="text-sm text-gray-500 space-y-3 list-disc pl-5" style={{ textAlign: 'justify' }}>
+          <li className="pl-1">
+            The horizontal bar shows the percentage of students admitted through each pathway:
+            <strong className="text-gray-400"> ATAR-based</strong> (school leavers with an ATAR),
+            <strong className="text-gray-400"> Higher Ed</strong> (prior university study),
+            <strong className="text-gray-400"> VET</strong> (vocational education background),
+            <strong className="text-gray-400"> Work/Life</strong> (professional or life experience),
+            <strong className="text-gray-400"> International</strong>.
+          </li>
+          <li className="pl-1">
+            A high ATAR-based percentage means the course is primarily accessed by school leavers.
+            A high Higher Ed or Work/Life share suggests the course attracts mature or career-change students.
+          </li>
+        </ul>
+      </Section>
+
+      <Section title="Filtering and sorting">
+        <ul className="text-sm text-gray-500 space-y-3 list-disc pl-5" style={{ textAlign: 'justify' }}>
+          <li className="pl-1">
+            Use the <strong className="text-gray-400">text search</strong> to find courses by title.
+            The <strong className="text-gray-400">level</strong> and <strong className="text-gray-400">fee type</strong> filters
+            narrow the list to specific course types.
+          </li>
+          <li className="pl-1">
+            <strong className="text-gray-400">Sort by ATAR</strong> to see the most or least competitive courses first.
+            Courses without an ATAR (typically postgraduate) will appear at the end.
+          </li>
+        </ul>
+      </Section>
+
+      <Section title="What's inside each course card">
+        <ul className="text-sm text-gray-500 space-y-3 list-disc pl-5" style={{ textAlign: 'justify' }}>
+          <li className="pl-1">
+            <strong className="text-gray-400">Tap any course card to expand it.</strong> Each card reveals
+            detailed entry data, campus breakdowns, and insights you won't see in the collapsed view.
+          </li>
+          <li className="pl-1">
+            <strong className="text-gray-400">Campus ATARs</strong> — for multi-campus courses, see how the
+            entry score varies by campus location.
+          </li>
+          <li className="pl-1">
+            <strong className="text-gray-400">ATAR trend</strong> — where historical data exists, see whether
+            the entry score is rising (getting harder) or dropping (becoming more accessible) over time.
+          </li>
+          <li className="pl-1">
+            <strong className="text-gray-400">At other institutions</strong> — compare this course's entry
+            score to similar courses at other universities, matched by discipline.
+          </li>
+          <li className="pl-1">
+            <strong className="text-gray-400">Bonus points potential</strong> — if the selection rank is
+            higher than the raw ATAR, adjustment factors (regional, equity, subject bonuses) can boost your
+            chances.
+          </li>
+          <li className="pl-1">
+            <strong className="text-gray-400">Admission profile</strong>, <strong className="text-gray-400">pathway diversity</strong>,{' '}
+            <strong className="text-gray-400">professional recognition</strong>, and{' '}
+            <strong className="text-gray-400">assumed knowledge</strong> are also shown when available.
+          </li>
+        </ul>
+      </Section>
+
+      <Section title="Where does this data come from?">
+        <div className="text-sm text-gray-500 space-y-2" style={{ textAlign: 'justify' }}>
+          <p>
+            Course listings, ATAR profiles, and student demographics are sourced from the
+            Universities Admissions Centre (UAC), which manages admissions for NSW and ACT institutions.
+          </p>
+          <p>
+            Institutions in other states use different admission centres (VTAC for Victoria, QTAC for Queensland, etc.)
+            and are not yet included. ATAR data reflects the most recent admissions year available.
+          </p>
+          <p className="italic text-gray-500">
+            Postgraduate courses do not have ATAR data, as admission is based on prior qualifications.
+          </p>
+        </div>
+      </Section>
+    </>
+  )
+}
+
 /* ── Main export ─────────────────────────────────────────────────── */
 export default function HowToRead({ mode }: Props) {
   const [open, setOpen] = useState(false)
@@ -334,7 +440,7 @@ export default function HowToRead({ mode }: Props) {
         className="w-full flex items-center justify-between px-5 py-3.5 text-left hover:bg-gray-900/80 transition-colors"
       >
         <span className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
-          How to read this {mode === 'heatmap' ? 'view' : 'report'}
+          How to read this {mode === 'heatmap' ? 'view' : mode === 'courses' ? 'view' : 'report'}
         </span>
         <span className={`text-sm text-gray-500 transition-transform ${open ? 'rotate-180' : ''}`}>
           &#9660;
@@ -345,6 +451,7 @@ export default function HowToRead({ mode }: Props) {
           {mode === 'report' && <ReportGuide />}
           {mode === 'equity' && <EquityGuide />}
           {mode === 'heatmap' && <HeatmapGuide />}
+          {mode === 'courses' && <CoursesGuide />}
         </div>
       )}
     </div>

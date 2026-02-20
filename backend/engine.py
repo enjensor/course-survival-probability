@@ -1244,3 +1244,778 @@ def compute_equity_report(
             "overall_label": label,
         },
     }
+
+
+# ── ATAR & Course Data (UAC) ───────────────────────────────────────
+
+ATAR_SENTINELS = frozenset({
+    "NO", "NC", "NS", "NR", "NP", "NN", "N/A", "N/P", "<5", "--", "",
+})
+
+COURSE_LEVEL_LABELS = {
+    "TBP": "Bachelor",
+    "TBH": "Bachelor (Honours)",
+    "TBG": "Bachelor (Grad Entry)",
+    "TCM": "Bachelor/Master",
+    "TAB": "Associate Degree",
+    "TXD": "Diploma",
+    "TZD": "Advanced Diploma",
+    "TOA": "Undergraduate Certificate",
+    "TEN": "Enabling/Preparation",
+    "TNA": "Bridging",
+    "TGC": "Graduate Certificate",
+    "TGD": "Graduate Diploma",
+    "TRM": "Research Masters",
+    "TMC": "Masters (Coursework)",
+}
+
+FEE_TYPE_LABELS = {
+    "CSP": "Commonwealth Supported",
+    "DFEE": "Domestic Full Fee",
+    "INT": "International",
+    "ADF": "Australian Defence Force",
+    "CBF": "Contract-Based",
+    "VET": "VET FEE-HELP",
+    "ENA": "Enabling",
+    "OTH": "Other",
+}
+
+
+# ── Field of study classification (ASCED broad fields) ──────────────
+
+FIELD_KEYWORDS = [
+    # Order matters: more specific fields checked first to avoid false matches
+    ("Education", [
+        "education", "teaching", "teach ", "pedagogy", "tesol", "childhood",
+        "classroom", "curriculum",
+    ]),
+    ("Health", [
+        "nursing", "medicine", "medical", "health", "pharmacy", "physiotherapy",
+        "occupational therapy", "speech pathology", "dentistry", "dental",
+        "nutrition", "dietetics", "midwifery", "paramedic", "rehabilitation",
+        "exercise science", "exercise physiology", "public health", "chiropractic",
+        "podiatry", "optometry", "vision science", "clinical", "biomedical science",
+        "anatomy", "surgical", "medical radiation", "aged care", "disability",
+        "sonography", "epidemiology", "infectious disease", "allergic disease",
+        "occupational hygiene", "cardiac", "autism", "neurodivergent",
+    ]),
+    ("Engineering and Related Technologies", [
+        "engineering", "mechatronic", "aerospace", "aviation", "telecommunications",
+        "remotely piloted",
+    ]),
+    ("Information Technology", [
+        "information technology", "computer science", "computing", "cyber security",
+        "cybersecurity", "data science", "artificial intelligence",
+        "information systems", "game development", "game design",
+        "games development", "interactive media", "interactive technology",
+    ]),
+    ("Management and Commerce", [
+        "business", "commerce", "accounting", "finance", "marketing",
+        "economics", "banking", "actuarial", "entrepreneurship",
+        "human resource", "supply chain", "logistics", "property",
+        "tourism", "hotel", "event management", "sport management",
+        "sports management", "aviation management", "football",
+        "financial technology", "coaching", "high performance sport",
+        "sport ", "master of management", "bachelor of management",
+        "diploma of management", "certificate in management",
+        "project management", "start up", "startup",
+    ]),
+    ("Creative Arts", [
+        "design", "music", "film", "animation", "photography", "creative",
+        "visual art", "fine art", "performing art", "theatre", "graphic design",
+        "interior design", "fashion", "media production", "screen", "audio",
+        "digital media", "illustration", "sound production", "dance",
+        "communication design", " art ",
+    ]),
+    ("Natural and Physical Sciences", [
+        "science", "physics", "chemistry", "biology", "mathematics", "geology",
+        "environmental science", "marine", "earth science", "astronomy",
+        "biochemistry", "biotechnology", "genetics", "microbiology", "zoology",
+        "ecology", "conservation biology", "neuroscience", "statistics",
+        "mathematical", "forensic", "scientific",
+    ]),
+    ("Society and Culture", [
+        "law", "juris doctor", "legal", "criminology", "psychology",
+        "social work", "social science", "sociology", "anthropology",
+        "political", "international studies", "international relations",
+        "philosophy", "history", "historical", "languages", "linguistics",
+        "communication", "journalism", "media", "theology", "theological",
+        "ministry", "divinity", "counselling", "human services",
+        "security studies", "justice", "liberal arts", "liberal studies",
+        "development studies", "gender studies", "indigenous", "aboriginal",
+        "policing", "human rights", "archaeology", "welfare", "youth work",
+        "interpreting", "translation", "intelligence", "strategy and security",
+        "public policy", "policy", "catholic thought", "modern slavery",
+        "bioethics", "ethics", "bachelor of arts", "diploma of arts",
+    ]),
+    ("Architecture and Building", [
+        "architecture", "architectural", "building", "construction",
+        "built environment", "landscape arch", "urban planning", "planning",
+        "surveying", "quantity surveying", "bushfire protection",
+    ]),
+    ("Agriculture, Environmental and Related Studies", [
+        "agriculture", "agricultural", "veterinary", "horticulture", "forestry",
+        "environmental management", "natural resource", "wildlife",
+        "animal science", "sustainability", "sustainable development",
+        "environmental studies", "environment",
+    ]),
+    ("Food, Hospitality and Personal Services", [
+        "culinary", "food science", "food technology", "cookery",
+    ]),
+]
+
+# Short labels for display
+FIELD_OF_STUDY_LABELS = {
+    "Agriculture, Environmental and Related Studies": "Agriculture & Environment",
+    "Architecture and Building": "Architecture & Building",
+    "Creative Arts": "Creative Arts",
+    "Education": "Education",
+    "Engineering and Related Technologies": "Engineering",
+    "Food, Hospitality and Personal Services": "Food & Hospitality",
+    "Health": "Health",
+    "Information Technology": "IT",
+    "Management and Commerce": "Management & Commerce",
+    "Mixed Field Programs": "Mixed / Other",
+    "Natural and Physical Sciences": "Sciences",
+    "Society and Culture": "Society & Culture",
+}
+
+# Patterns that indicate enabling/preparation courses
+_ENABLING_PATTERNS = frozenset({
+    "uniready", "open foundation", "foundation studies", "empowered",
+    "university preparation", "enabling program", "entrance program",
+})
+
+
+def _classify_field(title, areas_of_study):
+    """Classify a course into an ASCED broad field based on title and areas text.
+
+    Strategy: check the title first (highly reliable), then fall back to
+    areas_of_study text.  The title alone resolves >95 % of courses.
+    """
+    t = (title or "").lower()
+
+    # Enabling/preparation courses → Mixed Field Programs
+    for pat in _ENABLING_PATTERNS:
+        if pat in t:
+            return "Mixed Field Programs"
+
+    # Try classification on title only first
+    for field, keywords in FIELD_KEYWORDS:
+        for kw in keywords:
+            if kw in t:
+                return field
+
+    # Fall back to areas_of_study (may contain generic terms, so still
+    # useful for courses with uninformative titles like "Diploma of …")
+    a = (areas_of_study or "").lower()
+    if a:
+        for field, keywords in FIELD_KEYWORDS:
+            for kw in keywords:
+                if kw in a:
+                    return field
+
+    return "Mixed Field Programs"
+
+
+def _parse_atar(val):
+    """Parse ATAR text to float, returning None for sentinel values."""
+    if not val or str(val).strip().upper() in ATAR_SENTINELS:
+        return None
+    try:
+        return float(val)
+    except (ValueError, TypeError):
+        return None
+
+
+def compute_courses_report(conn, institution_id):
+    """
+    Return UAC course listings with ATAR profiles and entry requirements
+    for a given institution.  Returns None if no UAC data exists.
+    """
+    # Validate institution
+    inst_row = conn.execute(
+        "SELECT id, name, state FROM institutions WHERE id = ?",
+        (institution_id,),
+    ).fetchone()
+    if not inst_row:
+        return None
+
+    # Fetch all current courses for this institution
+    rows = conn.execute("""
+        SELECT
+            uc.course_code, uc.level, uc.title,
+            uc.course_level, uc.fee_type, uc.duration,
+            uc.mode_of_attendance, uc.campus_code,
+            uc.campus_location, camp.name_short AS campus_name,
+            uc.atar_year, uc.atar_lowest, uc.atar_median, uc.atar_highest,
+            uc.selection_rank_lowest, uc.selection_rank_median,
+            uc.selection_rank_highest,
+            uc.student_profile_year, uc.total_students,
+            uc.pct_atar_based, uc.pct_higher_ed, uc.pct_vet,
+            uc.pct_work_life, uc.pct_international,
+            ucd.about, ucd.assumed_knowledge,
+            ucd.admission_criteria, ucd.career_opportunities,
+            ucd.areas_of_study,
+            ucd.practical_experience, ucd.professional_recognition,
+            ucd.further_info_url,
+            uc.start_months
+        FROM uac_courses uc
+        LEFT JOIN uac_course_details ucd
+            ON ucd.course_code = uc.course_code AND ucd.level = uc.level
+        LEFT JOIN uac_campuses camp
+            ON camp.campus_location_code = uc.campus_location
+        WHERE uc.institution_id = ?
+          AND uc.course_status = 'C'
+        ORDER BY uc.level, uc.title
+    """, (institution_id,)).fetchall()
+
+    if not rows:
+        return None
+
+    # Deduplicate by (course_code, campus_code) — merge level variants,
+    # preferring undergraduate row for ATAR display
+    LEVEL_PRIORITY = {"undergraduate": 0, "international": 1, "postgraduate": 2}
+    seen = {}
+
+    for r in rows:
+        key = (r["course_code"], r["campus_code"])
+        level = r["level"]
+        priority = LEVEL_PRIORITY.get(level, 9)
+
+        if key not in seen or priority < seen[key]["_priority"]:
+            seen[key] = {
+                "_priority": priority,
+                "course_code": r["course_code"],
+                "title": r["title"],
+                "levels": [level],
+                "course_level": r["course_level"],
+                "course_level_label": COURSE_LEVEL_LABELS.get(
+                    r["course_level"], r["course_level"]
+                ),
+                "fee_type": r["fee_type"],
+                "fee_type_label": FEE_TYPE_LABELS.get(
+                    r["fee_type"], r["fee_type"]
+                ),
+                "duration": r["duration"],
+                "mode_of_attendance": r["mode_of_attendance"],
+                "campus_name": r["campus_name"] or r["campus_code"],
+                "atar_year": r["atar_year"],
+                "atar_lowest": r["atar_lowest"],
+                "atar_median": r["atar_median"],
+                "atar_highest": r["atar_highest"],
+                "atar_lowest_num": _parse_atar(r["atar_lowest"]),
+                "atar_median_num": _parse_atar(r["atar_median"]),
+                "selection_rank_lowest": r["selection_rank_lowest"],
+                "selection_rank_median": r["selection_rank_median"],
+                "selection_rank_highest": r["selection_rank_highest"],
+                "student_profile_year": r["student_profile_year"],
+                "total_students": r["total_students"],
+                "pct_atar_based": r["pct_atar_based"],
+                "pct_higher_ed": r["pct_higher_ed"],
+                "pct_vet": r["pct_vet"],
+                "pct_work_life": r["pct_work_life"],
+                "pct_international": r["pct_international"],
+                "about": r["about"],
+                "assumed_knowledge": r["assumed_knowledge"],
+                "admission_criteria": r["admission_criteria"],
+                "career_opportunities": r["career_opportunities"],
+                "practical_experience": r["practical_experience"],
+                "professional_recognition": r["professional_recognition"],
+                "further_info_url": r["further_info_url"],
+                "start_months": r["start_months"],
+                "field_of_study": _classify_field(
+                    r["title"], r["areas_of_study"]
+                ),
+            }
+        else:
+            # Merge level into existing entry
+            if level not in seen[key]["levels"]:
+                seen[key]["levels"].append(level)
+
+    # Build raw course list, dropping internal _priority field and adding labels
+    raw_courses = []
+    for entry in seen.values():
+        entry.pop("_priority", None)
+        fos = entry.get("field_of_study", "Mixed Field Programs")
+        entry["field_of_study_label"] = FIELD_OF_STUDY_LABELS.get(fos, fos)
+        raw_courses.append(entry)
+
+    # ── Group multi-campus variants of the same course ────────────────
+    # UAC assigns separate course_codes to each campus offering of the
+    # same programme (e.g. Nursing at Campbelltown, Parramatta, etc.).
+    # We group by (title, course_level) and present one card per group,
+    # with a campuses[] array showing per-campus ATAR detail.
+    from collections import defaultdict
+
+    campus_groups = defaultdict(list)
+    for entry in raw_courses:
+        group_key = (entry["title"], entry["course_level"])
+        campus_groups[group_key].append(entry)
+
+    courses = []
+    # Map: every course_code in a group -> primary course_code
+    # (used later to merge ATAR trend data)
+    _course_code_to_primary = {}
+
+    for group_key, group_entries in campus_groups.items():
+        # Sort: prefer entries with valid numeric ATAR, then by course_code
+        group_entries.sort(
+            key=lambda e: (
+                0 if e["atar_lowest_num"] is not None else 1,
+                -(e["atar_lowest_num"] or 0),
+                e["course_code"],
+            )
+        )
+
+        # Build campuses array from all entries
+        campuses = []
+        for e in group_entries:
+            campuses.append({
+                "campus_name": e["campus_name"],
+                "course_code": e["course_code"],
+                "atar_lowest": e["atar_lowest"],
+                "atar_lowest_num": e["atar_lowest_num"],
+                "selection_rank_lowest": e["selection_rank_lowest"],
+                "selection_rank_median": e["selection_rank_median"],
+                "further_info_url": e["further_info_url"],
+            })
+
+        # Sort campuses by ATAR ascending (nulls last)
+        campuses.sort(
+            key=lambda c: (
+                0 if c["atar_lowest_num"] is not None else 1,
+                c["atar_lowest_num"] or 999,
+            )
+        )
+
+        # Pick the primary entry — the one with the lowest valid ATAR
+        # (representing the easiest entry point for prospective students)
+        primary = None
+        for e in group_entries:
+            if e["atar_lowest_num"] is not None:
+                if primary is None or e["atar_lowest_num"] < primary["atar_lowest_num"]:
+                    primary = e
+        if primary is None:
+            primary = group_entries[0]
+
+        # Track code mapping for ATAR trends
+        for e in group_entries:
+            _course_code_to_primary[e["course_code"]] = primary["course_code"]
+
+        primary["campuses"] = campuses
+        primary["campus_count"] = len(campuses)
+
+        if len(campuses) > 1:
+            # Set ATAR to the lowest across campuses (easiest entry)
+            valid_atars = [c["atar_lowest_num"] for c in campuses if c["atar_lowest_num"] is not None]
+            if valid_atars:
+                lowest = min(valid_atars)
+                # Find the campus entry with this lowest ATAR for raw string
+                for c in campuses:
+                    if c["atar_lowest_num"] == lowest:
+                        primary["atar_lowest"] = c["atar_lowest"]
+                        primary["atar_lowest_num"] = lowest
+                        break
+            primary["campus_name"] = None  # multiple campuses
+        # else: single campus, keep campus_name as-is
+
+        courses.append(primary)
+
+    # Sort by title
+    courses.sort(key=lambda c: c["title"])
+
+    # Compute summary statistics
+    numeric_atars = [
+        c["atar_lowest_num"] for c in courses if c["atar_lowest_num"] is not None
+    ]
+    atar_year = None
+    for c in courses:
+        if c["atar_year"]:
+            atar_year = c["atar_year"]
+            break
+
+    by_level = {}
+    by_fee = {}
+    by_field = {}
+    for c in courses:
+        cl = c["course_level"] or "Unknown"
+        by_level[cl] = by_level.get(cl, 0) + 1
+        ft = c["fee_type"] or "Unknown"
+        by_fee[ft] = by_fee.get(ft, 0) + 1
+        fos = c["field_of_study"] or "Mixed Field Programs"
+        by_field[fos] = by_field.get(fos, 0) + 1
+
+    summary = {
+        "total_courses": len(courses),
+        "courses_with_atar": len(numeric_atars),
+        "atar_range": {
+            "low": min(numeric_atars),
+            "high": max(numeric_atars),
+        } if numeric_atars else None,
+        "by_course_level": by_level,
+        "by_fee_type": by_fee,
+        "by_field_of_study": by_field,
+        "atar_year": atar_year,
+    }
+
+    # ── Cross-institution ATAR comparison by discipline ─────────────
+    # For each of this institution's courses, find similar courses at
+    # OTHER institutions using discipline-level title matching.
+    # Previous approach matched by broad field (e.g. "Society & Culture")
+    # which was misleading — Law at 84 would be compared against an
+    # Arts degree at 49 because both fall under Society & Culture.
+    # Now we extract discipline keywords from titles and match like-for-like.
+
+    # Discipline keywords: extracted from course title for matching.
+    # Order matters — first match wins, so more specific before general.
+    _DISCIPLINE_KEYWORDS = [
+        ("Law", ["law", "legal"]),
+        ("Nursing", ["nursing", "midwifery"]),
+        ("Medicine", ["medicine", "medical science", "clinical science"]),
+        ("Pharmacy", ["pharmacy", "pharmaceutical"]),
+        ("Physiotherapy", ["physiotherapy", "physical therapy"]),
+        ("Occupational Therapy", ["occupational therapy"]),
+        ("Speech Pathology", ["speech pathol"]),
+        ("Dentistry", ["dentistry", "dental", "oral health"]),
+        ("Psychology", ["psychology", "psychological"]),
+        ("Social Work", ["social work"]),
+        ("Criminology", ["criminolog", "criminal justice", "policing"]),
+        ("Engineering", ["engineering", "mechatronic"]),
+        ("Architecture", ["architecture", "built environment", "interior architecture"]),
+        ("Computer Science", ["computer science", "software", "cyber", "information technology"]),
+        ("Data Science", ["data science", "data analytics"]),
+        ("Education", ["education", "teaching"]),
+        ("Accounting", ["accounting"]),
+        ("Commerce", ["commerce", "business"]),
+        ("Economics", ["economics", "actuarial"]),
+        ("Science", ["science"]),
+        ("Arts", ["arts"]),
+        ("Communication", ["communication", "media", "journalism"]),
+        ("Design", ["design"]),
+        ("Music", ["music", "conservatorium"]),
+    ]
+
+    def _extract_discipline(title):
+        """Extract a discipline tag from a course title for cross-institution matching."""
+        t = (title or "").lower()
+        for discipline, keywords in _DISCIPLINE_KEYWORDS:
+            for kw in keywords:
+                if kw in t:
+                    return discipline
+        return None
+
+    def _extract_all_disciplines(title):
+        """Extract ALL matching discipline tags (for indexing double-degrees)."""
+        t = (title or "").lower()
+        found = []
+        for discipline, keywords in _DISCIPLINE_KEYWORDS:
+            for kw in keywords:
+                if kw in t:
+                    found.append(discipline)
+                    break
+        return found
+
+    # Tag each course with its discipline (used by frontend for comparison label)
+    for c in courses:
+        c["discipline"] = _extract_discipline(c["title"])
+
+    # Build set of (discipline, field_of_study) pairs from our courses
+    our_courses_by_discipline = {}
+    for c in courses:
+        fos = c.get("field_of_study")
+        if not fos or fos == "Mixed Field Programs":
+            continue
+        disc = _extract_discipline(c["title"])
+        if disc:
+            our_courses_by_discipline.setdefault(disc, []).append(c)
+
+    field_comparison = {}  # keyed by course_code -> {inst_name -> best entry}
+    if our_courses_by_discipline:
+        # Get all current *bachelor-level* courses across other institutions.
+        all_rows = conn.execute("""
+            SELECT uc.course_code, uc.title, uc.institution_id,
+                   i.name AS institution_name,
+                   uc.atar_lowest, uc.pct_atar_based,
+                   ucd.areas_of_study
+            FROM uac_courses uc
+            JOIN uac_course_details ucd
+                ON ucd.course_code = uc.course_code AND ucd.level = uc.level
+            JOIN institutions i ON i.id = uc.institution_id
+            WHERE uc.course_status = 'C'
+              AND uc.atar_lowest IS NOT NULL
+              AND uc.institution_id != ?
+              AND uc.course_level = 'TBP'
+        """, (institution_id,)).fetchall()
+
+        # Index external courses by discipline
+        external_by_discipline = {}
+        for ar in all_rows:
+            atar_num = _parse_atar(ar["atar_lowest"])
+            if atar_num is None or atar_num < 1:
+                continue
+            pct_raw = ar["pct_atar_based"]
+            if pct_raw in (None, "", "0", "<5", "N/P", "NP", "NN", "N/A"):
+                continue
+            try:
+                pct_atar = float(pct_raw)
+            except (ValueError, TypeError):
+                continue
+            if pct_atar < 25:
+                continue
+            discs = _extract_all_disciplines(ar["title"])
+            entry = {
+                "course_code": ar["course_code"],
+                "title": ar["title"],
+                "institution_name": ar["institution_name"],
+                "atar_num": atar_num,
+            }
+            for disc in discs:
+                external_by_discipline.setdefault(disc, []).append(entry)
+
+        # For each of our courses, find discipline-matched comparisons
+        for disc, our_list in our_courses_by_discipline.items():
+            ext_list = external_by_discipline.get(disc, [])
+
+            # Build best-per-institution map for this discipline
+            inst_best = {}
+            for ext in ext_list:
+                inst = ext["institution_name"]
+                if inst not in inst_best or ext["atar_num"] < inst_best[inst]["atar"]:
+                    inst_best[inst] = {
+                        "atar": ext["atar_num"],
+                        "title": ext["title"],
+                        "course_code": ext["course_code"],
+                    }
+
+            # Assign this comparison to each of our courses in this discipline.
+            # Even when inst_best is empty, mark the course so it does NOT fall
+            # through to the broad field-level fallback (which would be misleading).
+            for c in our_list:
+                cc = c["course_code"]
+                field_comparison[cc] = inst_best
+
+    # Also keep a field-level fallback for courses with no discipline match
+    # (i.e. courses where _extract_discipline returns None)
+    field_level_comparison = {}
+    for c in courses:
+        cc = c["course_code"]
+        if cc in field_comparison:
+            continue  # already has discipline match
+        fos = c.get("field_of_study")
+        if not fos or fos == "Mixed Field Programs":
+            continue
+        # This course has no discipline match; build a field-level one
+        if fos not in field_level_comparison:
+            # Compute field-level comparison on demand
+            all_rows_for_field = conn.execute("""
+                SELECT uc.course_code, uc.title, uc.institution_id,
+                       i.name AS institution_name,
+                       uc.atar_lowest, uc.pct_atar_based,
+                       ucd.areas_of_study
+                FROM uac_courses uc
+                JOIN uac_course_details ucd
+                    ON ucd.course_code = uc.course_code AND ucd.level = uc.level
+                JOIN institutions i ON i.id = uc.institution_id
+                WHERE uc.course_status = 'C'
+                  AND uc.atar_lowest IS NOT NULL
+                  AND uc.institution_id != ?
+                  AND uc.course_level = 'TBP'
+            """, (institution_id,)).fetchall()
+            inst_best = {}
+            for ar in all_rows_for_field:
+                ar_fos = _classify_field(ar["title"], ar["areas_of_study"])
+                if ar_fos != fos:
+                    continue
+                atar_num = _parse_atar(ar["atar_lowest"])
+                if atar_num is None or atar_num < 1:
+                    continue
+                pct_raw = ar["pct_atar_based"]
+                if pct_raw in (None, "", "0", "<5", "N/P", "NP", "NN", "N/A"):
+                    continue
+                try:
+                    pct_atar = float(pct_raw)
+                except (ValueError, TypeError):
+                    continue
+                if pct_atar < 25:
+                    continue
+                inst = ar["institution_name"]
+                if inst not in inst_best or atar_num < inst_best[inst]["atar"]:
+                    inst_best[inst] = {
+                        "atar": atar_num,
+                        "title": ar["title"],
+                        "course_code": ar["course_code"],
+                    }
+            field_level_comparison[fos] = inst_best
+        field_comparison[cc] = field_level_comparison[fos]
+
+    # Convert to sorted list format per course_code
+    field_comparison_out = {}
+    for cc, inst_map in field_comparison.items():
+        entries = sorted(
+            [{"institution": k, "atar": v["atar"], "title": v["title"], "course_code": v["course_code"]}
+             for k, v in inst_map.items()],
+            key=lambda x: x["atar"],
+        )
+        field_comparison_out[cc] = entries
+
+    # ── Historical ATAR trend per course ──────────────────────────────
+    # Grab all historical ATAR data for this institution's courses
+    hist_rows = conn.execute("""
+        SELECT course_code, atar_year, atar_lowest
+        FROM uac_courses
+        WHERE institution_id = ?
+          AND atar_year > 0
+          AND atar_lowest IS NOT NULL
+          AND course_status = 'C'
+        ORDER BY course_code, atar_year
+    """, (institution_id,)).fetchall()
+
+    atar_trends_raw = {}
+    for hr in hist_rows:
+        cc = hr["course_code"]
+        atar_num = _parse_atar(hr["atar_lowest"])
+        if atar_num is None:
+            continue
+        if cc not in atar_trends_raw:
+            atar_trends_raw[cc] = []
+        atar_trends_raw[cc].append({
+            "year": hr["atar_year"],
+            "atar": atar_num,
+        })
+
+    # Merge ATAR trend data for campus variants under the primary code.
+    # When multiple campus codes share trends, keep the one with the
+    # most data points (usually they're identical anyway).
+    atar_trends = {}
+    for cc, points in atar_trends_raw.items():
+        primary_cc = _course_code_to_primary.get(cc, cc)
+        if primary_cc not in atar_trends or len(points) > len(atar_trends[primary_cc]):
+            atar_trends[primary_cc] = points
+
+    # Only keep courses that have 2+ data points
+    atar_trends = {k: v for k, v in atar_trends.items() if len(v) >= 2}
+
+    return {
+        "institution": {
+            "id": inst_row["id"],
+            "name": inst_row["name"],
+            "state": inst_row["state"] or "",
+        },
+        "uac_region_note": (
+            "Course data covers NSW and ACT institutions only "
+            "(sourced from UAC). Other states have separate admission "
+            "centres which will be integrated in future updates."
+        ),
+        "courses": courses,
+        "summary": summary,
+        "field_comparison": field_comparison_out,
+        "atar_trends": atar_trends,
+    }
+
+
+def compute_sector_admission_profile(conn):
+    """
+    Aggregate student admission profile data across all UAC institutions
+    (NSW/ACT sector-wide).  Returns weighted averages of how students were
+    admitted, plus total student count.
+    """
+    rows = conn.execute("""
+        SELECT
+            uc.student_profile_year,
+            uc.total_students,
+            uc.pct_atar_based,
+            uc.pct_higher_ed,
+            uc.pct_vet,
+            uc.pct_work_life,
+            uc.pct_international
+        FROM uac_courses uc
+        WHERE uc.course_status = 'C'
+          AND uc.level = 'undergraduate'
+          AND uc.total_students IS NOT NULL
+          AND uc.pct_atar_based IS NOT NULL
+    """).fetchall()
+
+    if not rows:
+        return None
+
+    def _safe_float(val):
+        if not val or str(val).strip().startswith("<"):
+            return None
+        try:
+            return float(val)
+        except (ValueError, TypeError):
+            return None
+
+    def _safe_int(val):
+        if not val:
+            return None
+        try:
+            return int(str(val).replace(",", ""))
+        except (ValueError, TypeError):
+            return None
+
+    total_students = 0
+    weighted = {
+        "atar_based": 0.0,
+        "higher_ed": 0.0,
+        "vet": 0.0,
+        "work_life": 0.0,
+        "international": 0.0,
+    }
+
+    # UAC duplicates the same student profile across campus/variant
+    # listings.  Deduplicate by the full profile signature so each
+    # cohort is counted only once.
+    seen_profiles = set()
+
+    profile_year = None
+    for r in rows:
+        n = _safe_int(r["total_students"])
+        if not n or n <= 0:
+            continue
+
+        pct_atar = _safe_float(r["pct_atar_based"])
+        pct_he = _safe_float(r["pct_higher_ed"])
+        pct_vet = _safe_float(r["pct_vet"])
+        pct_wl = _safe_float(r["pct_work_life"])
+        pct_int = _safe_float(r["pct_international"])
+
+        if pct_atar is None:
+            continue
+
+        # Dedup key: identical total + identical % breakdown = same cohort
+        key = (
+            r["total_students"],
+            r["pct_atar_based"],
+            r["pct_higher_ed"],
+            r["pct_vet"],
+            r["pct_work_life"],
+            r["pct_international"],
+        )
+        if key in seen_profiles:
+            continue
+        seen_profiles.add(key)
+
+        total_students += n
+        weighted["atar_based"] += (pct_atar or 0) * n
+        weighted["higher_ed"] += (pct_he or 0) * n
+        weighted["vet"] += (pct_vet or 0) * n
+        weighted["work_life"] += (pct_wl or 0) * n
+        weighted["international"] += (pct_int or 0) * n
+
+        if not profile_year and r["student_profile_year"]:
+            profile_year = r["student_profile_year"]
+
+    if total_students == 0:
+        return None
+
+    return {
+        "profile_year": profile_year,
+        "total_students": total_students,
+        "pct_atar_based": round(weighted["atar_based"] / total_students, 1),
+        "pct_higher_ed": round(weighted["higher_ed"] / total_students, 1),
+        "pct_vet": round(weighted["vet"] / total_students, 1),
+        "pct_work_life": round(weighted["work_life"] / total_students, 1),
+        "pct_international": round(weighted["international"] / total_students, 1),
+    }

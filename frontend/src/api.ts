@@ -1,4 +1,4 @@
-import type { Institution, Field, ReportData, HeatmapData, EquityReportData } from './types'
+import type { Institution, Field, ReportData, HeatmapData, EquityReportData, CoursesReportData, SectorAdmissionProfile } from './types'
 
 const BASE = '/api'
 const TIMEOUT_MS = 30_000
@@ -12,7 +12,7 @@ async function fetchWithTimeout(url: string, timeoutMs = TIMEOUT_MS): Promise<Re
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
   try {
-    const res = await fetch(url, { signal: controller.signal })
+    const res = await fetch(url, { signal: controller.signal, cache: 'no-store' })
     return res
   } catch (err: unknown) {
     if (err instanceof DOMException && err.name === 'AbortError') {
@@ -57,5 +57,17 @@ export async function fetchHeatmap(fieldId: number): Promise<HeatmapData> {
 export async function fetchEquityReport(institutionId: number): Promise<EquityReportData> {
   const res = await fetchWithTimeout(`${BASE}/equity/${institutionId}`)
   if (!res.ok) throw new Error('Failed to fetch equity report')
+  return res.json()
+}
+
+export async function fetchCourses(institutionId: number): Promise<CoursesReportData> {
+  const res = await fetchWithTimeout(`${BASE}/courses/${institutionId}`)
+  if (!res.ok) throw new Error('Failed to fetch course data')
+  return res.json()
+}
+
+export async function fetchSectorAdmissionProfile(): Promise<SectorAdmissionProfile> {
+  const res = await fetchWithTimeout(`${BASE}/sector-admission-profile`)
+  if (!res.ok) throw new Error('Failed to fetch sector admission profile')
   return res.json()
 }

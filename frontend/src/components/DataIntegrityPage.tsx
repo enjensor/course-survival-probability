@@ -85,6 +85,17 @@ export default function DataIntegrityPage() {
             <DataRow label="Data sections used" value="Sections 1, 2, 14, 15, 16, 17 + Staff Appendix 2" />
             <DataRow label="Database" value="SQLite (9 MB, 30k+ rows)" />
           </div>
+          <p className="mt-3">
+            Course-level data (ATAR profiles, selection ranks, and entry requirements) is sourced
+            from the <span className="text-indigo-400">Universities Admissions Centre (UAC)</span>,
+            which processes applications for NSW and ACT institutions.
+          </p>
+          <div className="bg-gray-800 rounded-xl p-4 mt-3 space-y-1">
+            <DataRow label="Source" value="UAC — Course and ATAR data" />
+            <DataRow label="Coverage" value="NSW and ACT institutions only" />
+            <DataRow label="Data year" value="2025 intake (latest available)" />
+            <DataRow label="Includes" value="ATAR, selection rank, student profile, course details" />
+          </div>
         </div>
       </SectionCard>
 
@@ -455,6 +466,92 @@ export default function DataIntegrityPage() {
         </div>
       </SectionCard>
 
+      {/* ── Courses & ATAR ── */}
+      <SectionCard id="courses-atar">
+        <h3 className="text-base font-semibold text-gray-200 mb-3">Courses & ATAR (Entry Requirements)</h3>
+        <div className="space-y-3">
+          <MetricBlock title="What it measures" subtitle="UAC — Course listings and ATAR profiles">
+            <p>
+              For NSW and ACT institutions, the Courses tab displays individual course listings
+              with ATAR (Australian Tertiary Admission Rank) profiles. This includes the lowest
+              selection rank at which an offer was made, the median ATAR of admitted students,
+              and the student admission profile showing how students gained entry.
+            </p>
+          </MetricBlock>
+
+          <MetricBlock title="Campus grouping">
+            <p>
+              UAC assigns separate course codes to the same degree offered at different campuses.
+              The app groups these into a single card using the course title and level as
+              the grouping key. The displayed ATAR is the lowest across all campuses (the
+              easiest entry point), with per-campus ATAR detail shown when expanded.
+            </p>
+          </MetricBlock>
+
+          <MetricBlock title="Cross-institution comparison">
+            <p>
+              Each course card includes an &ldquo;At Other Institutions&rdquo; comparison showing the
+              lowest ATAR for similar courses at other universities. Courses are matched by
+              discipline (extracted from the course title) rather than broad field of study,
+              ensuring that Law courses are compared to Law — not all of Society &amp; Culture.
+            </p>
+            <div className="bg-gray-900/60 rounded-lg p-3 space-y-1">
+              <DataRow label="Matching method" value="Discipline keyword extraction from title" />
+              <DataRow label="Disciplines recognised" value="24 categories (Law, Nursing, Engineering, etc.)" />
+              <DataRow label="Comparison filter" value="Bachelor (TBP) with ≥25% ATAR-based admission" />
+              <DataRow label="Fallback" value="Broad field of study (if no discipline match)" />
+            </div>
+          </MetricBlock>
+
+          <MetricBlock title="Student admission profile">
+            <p>
+              The admission profile shows how students were admitted to each course, broken down
+              into five UAC-reported categories: ATAR-based, Higher Education study, VET, Work/Life
+              experience, and International. When these categories do not sum to 100%, the
+              remainder is shown as &ldquo;Other/Unclassified&rdquo; (special admission schemes,
+              portfolio entry, categories suppressed for privacy, etc.).
+            </p>
+          </MetricBlock>
+
+          <MetricBlock title="Student count deduplication">
+            <p>
+              UAC reports student profile data per campus. When multiple campuses report identical
+              profiles (same totals and percentages), the app deduplicates them to prevent double-counting
+              in the sector-wide admission chart.
+            </p>
+          </MetricBlock>
+
+          <MetricBlock title="Limitations">
+            <div className="space-y-2 text-xs">
+              <p>
+                <span className="text-amber-400 font-medium">Regional coverage:</span> Course and
+                ATAR data is currently limited to institutions that process applications through UAC
+                (NSW and ACT). Victorian (VTAC), Queensland (QTAC), South Australian (SATAC), and
+                Western Australian (TISC) institutions are not yet included.
+              </p>
+              <p>
+                <span className="text-amber-400 font-medium">ATAR interpretation:</span> The
+                &ldquo;lowest ATAR&rdquo; is the selection rank of the lowest-ranked admitted student,
+                not a guaranteed entry score. Actual admission depends on many factors including
+                adjustment points, bonus schemes, and available places.
+              </p>
+              <p>
+                <span className="text-amber-400 font-medium">Course level matching:</span> Cross-institution
+                comparisons are limited to Bachelor (TBP) courses with at least 25% ATAR-based admission.
+                Bachelor Honours (TBH) courses and courses with predominantly non-ATAR pathways are
+                excluded from comparisons to avoid misleading matches.
+              </p>
+              <p>
+                <span className="text-amber-400 font-medium">Discipline matching:</span> Course
+                discipline is inferred from title keywords, which may not capture all nuances.
+                Double-degree titles are indexed under all matching disciplines, but some specialist
+                courses may not match any recognised discipline.
+              </p>
+            </div>
+          </MetricBlock>
+        </div>
+      </SectionCard>
+
       {/* ── Pipeline & Processing ── */}
       <SectionCard id="pipeline">
         <h3 className="text-base font-semibold text-gray-200 mb-3">Data Pipeline</h3>
@@ -503,6 +600,15 @@ export default function DataIntegrityPage() {
                   <span className="text-gray-300 font-medium">Serve</span> — The FastAPI backend
                   queries the database at runtime. All analytics (percentiles, trends, rankings) are
                   computed on-the-fly from the raw data.
+                </p>
+              </div>
+              <div className="flex gap-3">
+                <span className="text-indigo-400 font-bold shrink-0">6.</span>
+                <p>
+                  <span className="text-gray-300 font-medium">UAC Ingestion</span> — Course-level
+                  data is scraped from UAC's public course pages, parsed into structured records
+                  (course details, ATAR profiles, student admission breakdowns), and stored in a
+                  dedicated table. Multi-campus courses are grouped at query time by title and level.
                 </p>
               </div>
             </div>
@@ -748,6 +854,18 @@ export default function DataIntegrityPage() {
                 publishes statistics with a 1-2 year lag. Attrition/retention data for year <em>N</em>
                 becomes available in year <em>N+2</em>. The most recent data in the app reflects the
                 latest available publication, not the current academic year.
+              </p>
+              <p>
+                <span className="text-amber-400 font-medium">UAC regional coverage:</span> ATAR and
+                entry requirement data is sourced from UAC, which covers NSW and ACT institutions only.
+                Other states use different admission centres (VTAC, QTAC, SATAC, TISC) whose data is
+                not yet integrated.
+              </p>
+              <p>
+                <span className="text-amber-400 font-medium">ATAR as entry indicator:</span> Published
+                ATAR data reflects past admission outcomes, not guaranteed entry scores. Selection ranks
+                vary each year based on demand, available places, and individual circumstances (adjustment
+                points, equity schemes, etc.).
               </p>
             </div>
           </MetricBlock>

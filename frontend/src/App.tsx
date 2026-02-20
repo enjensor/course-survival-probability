@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
-import type { Institution, Field, ReportData, HeatmapData, EquityReportData } from './types'
-import { fetchInstitutions, fetchFields, fetchReport, fetchHeatmap, fetchEquityReport } from './api'
+import type { Institution, Field, ReportData, HeatmapData, EquityReportData, CoursesReportData, SectorAdmissionProfile } from './types'
+import { fetchInstitutions, fetchFields, fetchReport, fetchHeatmap, fetchEquityReport, fetchCourses, fetchSectorAdmissionProfile } from './api'
 import InstitutionSelector from './components/InstitutionSelector'
 import FieldSelector from './components/FieldSelector'
 import ReportCard from './components/ReportCard'
@@ -9,9 +9,10 @@ import EquityReport from './components/EquityReport'
 import AboutPage from './components/AboutPage'
 import DataIntegrityPage from './components/DataIntegrityPage'
 import AustraliaMap from './components/AustraliaMap'
+import CoursesView from './components/CoursesView'
 import HowToRead from './components/HowToRead'
 
-type AppMode = 'report' | 'heatmap' | 'equity' | 'methodology' | 'about'
+type AppMode = 'report' | 'heatmap' | 'equity' | 'courses' | 'methodology' | 'about'
 
 // Fields with insufficient completion data for heatmap
 const EXCLUDED_HEATMAP_FIELDS = new Set([11, 12, 13])
@@ -35,6 +36,14 @@ export default function App() {
   const [equityData, setEquityData] = useState<EquityReportData | null>(null)
   const [equityLoading, setEquityLoading] = useState(false)
   const [equityError, setEquityError] = useState<string | null>(null)
+
+  // Courses state
+  const [coursesData, setCoursesData] = useState<CoursesReportData | null>(null)
+  const [coursesLoading, setCoursesLoading] = useState(false)
+  const [coursesError, setCoursesError] = useState<string | null>(null)
+
+  // Sector-wide admission profile (shared across all institutions)
+  const [sectorProfile, setSectorProfile] = useState<SectorAdmissionProfile | null>(null)
 
   // State map filter
   const [selectedState, setSelectedState] = useState<string | null>(null)
@@ -68,6 +77,7 @@ export default function App() {
     setSelectedField(null)
     setReport(null)
     setEquityData(null)
+    setCoursesData(null)
   }
 
   // Load institutions and fields on mount
@@ -137,6 +147,34 @@ export default function App() {
       })
   }, [mode, selectedInst])
 
+  // Fetch courses when institution changes (courses mode)
+  useEffect(() => {
+    if (mode !== 'courses' || selectedInst === null) {
+      setCoursesData(null)
+      return
+    }
+    setCoursesLoading(true)
+    setCoursesError(null)
+    fetchCourses(selectedInst)
+      .then((data) => {
+        setCoursesData(data)
+        setCoursesLoading(false)
+      })
+      .catch(() => {
+        setCoursesError('Failed to load course data. This institution may not have UAC course listings.')
+        setCoursesData(null)
+        setCoursesLoading(false)
+      })
+  }, [mode, selectedInst])
+
+  // Fetch sector-wide admission profile once (lazy, when courses mode first loads)
+  useEffect(() => {
+    if (mode !== 'courses' || sectorProfile) return
+    fetchSectorAdmissionProfile()
+      .then(setSectorProfile)
+      .catch(() => { /* silently skip if unavailable */ })
+  }, [mode, sectorProfile])
+
   // Click a row in heatmap → switch to report with institution + field selected
   function handleHeatmapInstitutionSelect(institutionId: number, fieldId: number) {
     setSelectedInst(institutionId)
@@ -160,15 +198,18 @@ export default function App() {
                     setSelectedField(null)
                     setReport(null)
                     setEquityData(null)
+                    setCoursesData(null)
                     setHeatmapData(null)
                     setError(null)
                     setEquityError(null)
+                    setCoursesError(null)
                     setHeatmapError(null)
                   }}
                   className="hover:opacity-80 transition-opacity"
                 >
                   <span className="text-indigo-400">Course Survival</span> Probability
                 </button>
+                <span className="ml-2 align-middle inline-block text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30">Beta</span>
               </h1>
               <p className="text-sm text-gray-500 mt-0.5">
                 How likely are you to finish? Data-driven completion insights for Australian higher education.
@@ -177,62 +218,28 @@ export default function App() {
 
             {/* Mode switcher — scrollable on mobile, pill on desktop */}
             <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide">
-              <div role="tablist" aria-label="View mode" className="flex items-center gap-1 bg-gray-900 rounded-full p-1 border border-gray-800 w-max sm:w-auto">
-                <button
-                  role="tab"
-                  aria-selected={mode === 'report'}
-                  onClick={() => setMode('report')}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap
-                    ${mode === 'report'
-                      ? 'bg-indigo-600 text-white'
-                      : 'text-gray-400 hover:text-gray-200'}`}
-                >
-                  Report
-                </button>
-                <button
-                  role="tab"
-                  aria-selected={mode === 'equity'}
-                  onClick={() => setMode('equity')}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap
-                    ${mode === 'equity'
-                      ? 'bg-indigo-600 text-white'
-                      : 'text-gray-400 hover:text-gray-200'}`}
-                >
-                  Equity
-                </button>
-                <button
-                  role="tab"
-                  aria-selected={mode === 'heatmap'}
-                  onClick={() => setMode('heatmap')}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap
-                    ${mode === 'heatmap'
-                      ? 'bg-indigo-600 text-white'
-                      : 'text-gray-400 hover:text-gray-200'}`}
-                >
-                  Fields
-                </button>
-                <button
-                  role="tab"
-                  aria-selected={mode === 'methodology'}
-                  onClick={() => setMode('methodology')}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap
-                    ${mode === 'methodology'
-                      ? 'bg-indigo-600 text-white'
-                      : 'text-gray-400 hover:text-gray-200'}`}
-                >
-                  Methodology
-                </button>
-                <button
-                  role="tab"
-                  aria-selected={mode === 'about'}
-                  onClick={() => setMode('about')}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap
-                    ${mode === 'about'
-                      ? 'bg-indigo-600 text-white'
-                      : 'text-gray-400 hover:text-gray-200'}`}
-                >
-                  About
-                </button>
+              <div role="tablist" aria-label="View mode" className="flex items-center gap-0.5 bg-gray-900 rounded-full p-1 border border-gray-800 w-max">
+                {([
+                  ['report', 'Report'],
+                  ['courses', 'Courses'],
+                  ['heatmap', 'Fields'],
+                  ['equity', 'Equity'],
+                  ['methodology', 'Method'],
+                  ['about', 'About'],
+                ] as const).map(([key, label]) => (
+                  <button
+                    key={key}
+                    role="tab"
+                    aria-selected={mode === key}
+                    onClick={() => setMode(key)}
+                    className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap
+                      ${mode === key
+                        ? 'bg-indigo-600 text-white'
+                        : 'text-gray-400 hover:text-gray-200'}`}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
@@ -243,7 +250,7 @@ export default function App() {
       {mode !== 'about' && mode !== 'methodology' && (
       <section className="max-w-5xl mx-auto px-4 py-6">
         <div className="flex flex-col sm:flex-row gap-4">
-          {(mode === 'report' || mode === 'equity') && (
+          {(mode === 'report' || mode === 'equity' || mode === 'courses') && (
             <InstitutionSelector
               institutions={filteredInstitutions}
               value={selectedInst}
@@ -252,7 +259,7 @@ export default function App() {
               onClearStateFilter={() => handleStateSelect(null)}
             />
           )}
-          {mode !== 'equity' && (
+          {mode !== 'equity' && mode !== 'courses' && (
             <FieldSelector
               fields={mode === 'heatmap' ? heatmapFields : fields}
               value={selectedField}
@@ -292,6 +299,11 @@ export default function App() {
             Select an institution above to see how it supports students from different equity groups.
           </p>
         )}
+        {mode === 'courses' && selectedInst === null && (
+          <p className="text-xs text-gray-500 mt-2">
+            Select an institution above to view its course listings with ATAR profiles and entry requirements.
+          </p>
+        )}
       </section>
       )}
 
@@ -300,7 +312,7 @@ export default function App() {
         <div className="max-w-5xl mx-auto px-4">
           <p className="text-xs text-amber-700/80 leading-relaxed">
             This app is in development and provided for informational purposes only — not professional advice.
-            Data sourced from the Dept of Education; may contain errors or omissions.{' '}
+            Data sourced from the Dept of Education and UAC; may contain errors or omissions.{' '}
             <button
               onClick={() => {
                 setMode('about')
@@ -382,7 +394,7 @@ export default function App() {
                 />
 
                 {/* Feature cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-12">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-12">
                   <button
                     onClick={() => setMode('report')}
                     className="bg-gray-900 rounded-xl p-4 border border-gray-800 text-left hover:border-indigo-800 transition-colors"
@@ -399,6 +411,15 @@ export default function App() {
                     <h3 className="text-sm font-semibold text-gray-200">Equity Report</h3>
                     <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">
                       How well does an institution support students from different backgrounds?
+                    </p>
+                  </button>
+                  <button
+                    onClick={() => setMode('courses')}
+                    className="bg-gray-900 rounded-xl p-4 border border-gray-800 text-left hover:border-indigo-800 transition-colors"
+                  >
+                    <h3 className="text-sm font-semibold text-gray-200">Courses &amp; ATAR</h3>
+                    <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">
+                      Browse course listings with ATAR profiles, selection ranks, and entry requirements.
                     </p>
                   </button>
                   <button
@@ -471,11 +492,17 @@ export default function App() {
                           <td className="text-right py-2 hidden sm:table-cell text-gray-500">Staff Appendix 2</td>
                           <td className="text-right py-2 text-gray-500 tabular-nums">~Sep 2026</td>
                         </tr>
-                        <tr>
+                        <tr className="border-b border-gray-800/50">
                           <td className="py-2">Course level mix</td>
                           <td className="text-right py-2 tabular-nums text-emerald-400 font-medium">2024</td>
                           <td className="text-right py-2 hidden sm:table-cell text-gray-500">Sections 2, 14</td>
                           <td className="text-right py-2 text-gray-500 tabular-nums">~Sep 2026</td>
+                        </tr>
+                        <tr>
+                          <td className="py-2">ATAR &amp; entry requirements</td>
+                          <td className="text-right py-2 tabular-nums text-emerald-400 font-medium">2025</td>
+                          <td className="text-right py-2 hidden sm:table-cell text-gray-500">UAC (NSW/ACT)</td>
+                          <td className="text-right py-2 text-gray-500 tabular-nums">~Jan 2027</td>
                         </tr>
                       </tbody>
                     </table>
@@ -581,6 +608,53 @@ export default function App() {
           </>
         )}
 
+        {/* ── Courses mode ── */}
+        {mode === 'courses' && (
+          <>
+            {coursesError && (
+              <div className="rounded-xl bg-red-900/30 border border-red-800 p-4 text-sm text-red-300">
+                {coursesError}
+              </div>
+            )}
+
+            {coursesLoading && (
+              <div className="flex items-center justify-center py-20">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
+              </div>
+            )}
+
+            {!coursesLoading && !coursesError && selectedInst === null && (
+              <div className="text-center pt-6 pb-20">
+                <p className="text-gray-500 text-lg">
+                  Select an institution above to view course listings, ATAR profiles, and entry requirements.
+                </p>
+                <p className="text-gray-600 text-sm mt-2">
+                  Course data is available for NSW/ACT institutions (UAC region).
+                </p>
+              </div>
+            )}
+
+            {!coursesLoading && !coursesData && selectedInst !== null && !coursesError && (
+              <div className="rounded-xl bg-amber-900/20 border border-amber-800/50 p-5 text-center">
+                <p className="text-amber-300 text-sm font-medium">No course data available for this institution</p>
+                <p className="text-amber-400/70 text-xs mt-1.5">
+                  ATAR and entry requirement data is currently sourced from UAC, which covers NSW and ACT institutions.
+                  Institutions in other states use different admission centres (e.g. VTAC for Victoria, QTAC for Queensland).
+                </p>
+              </div>
+            )}
+
+            {!coursesLoading && coursesData && (
+              <>
+                <HowToRead mode="courses" />
+                <div className="mt-4">
+                  <CoursesView data={coursesData} sectorProfile={sectorProfile} />
+                </div>
+              </>
+            )}
+          </>
+        )}
+
         {/* ── Methodology mode ── */}
         {mode === 'methodology' && <DataIntegrityPage />}
 
@@ -592,7 +666,7 @@ export default function App() {
       {mode !== 'about' && mode !== 'methodology' && (
         <footer className="border-t border-gray-900 py-4 text-center">
           <p className="text-xs text-gray-700">
-            v1.0 &middot; Built by{' '}
+            v1.1 &middot; Built by{' '}
             <button
               onClick={() => {
                 setMode('about')
@@ -606,7 +680,7 @@ export default function App() {
             </button>
             {' '}&middot;{' '}
             <span className="text-gray-700">
-              Data: Dept of Education
+              Data: Dept of Education &amp; UAC
             </span>
           </p>
         </footer>

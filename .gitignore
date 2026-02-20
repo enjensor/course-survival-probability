@@ -15,6 +15,12 @@ venv/
 # Raw data downloads (260MB+ of XLSX files)
 _downloads/
 
+# UAC scrape cache (regenerable)
+_uac_cache/
+
+# Stale/duplicate databases
+backend/student_app.db
+
 # Database temp files (the .db itself is committed for deployment)
 *.db-shm
 *.db-wal

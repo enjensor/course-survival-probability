@@ -16,7 +16,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, Response
 
 from db import get_db
-from engine import compute_report, compute_field_heatmap, compute_equity_report
+from engine import compute_report, compute_field_heatmap, compute_equity_report, compute_courses_report, compute_sector_admission_profile
 
 app = FastAPI(
     title="Course Survival Probability Engine",
@@ -141,6 +141,44 @@ def get_equity_report(institution_id: int):
             raise HTTPException(
                 status_code=404,
                 detail="No equity data available for this institution",
+            )
+        return data
+    finally:
+        conn.close()
+
+
+@app.get("/api/sector-admission-profile")
+def get_sector_admission_profile():
+    """
+    Return sector-wide (NSW/ACT) aggregated student admission profile.
+    Weighted average across all UAC undergraduate courses.
+    """
+    conn = get_db()
+    try:
+        data = compute_sector_admission_profile(conn)
+        if data is None:
+            raise HTTPException(
+                status_code=404,
+                detail="No sector admission profile data available",
+            )
+        return data
+    finally:
+        conn.close()
+
+
+@app.get("/api/courses/{institution_id}")
+def get_courses(institution_id: int):
+    """
+    Return UAC course listings with ATAR profiles and entry requirements
+    for a given institution. Only available for NSW/ACT (UAC region).
+    """
+    conn = get_db()
+    try:
+        data = compute_courses_report(conn, institution_id)
+        if data is None:
+            raise HTTPException(
+                status_code=404,
+                detail="No UAC course data available for this institution",
             )
         return data
     finally:
