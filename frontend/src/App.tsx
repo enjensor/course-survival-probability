@@ -222,8 +222,8 @@ export default function App() {
                 {([
                   ['report', 'Report'],
                   ['courses', 'Courses'],
-                  ['heatmap', 'Fields'],
                   ['equity', 'Equity'],
+                  ['heatmap', 'Fields'],
                   ['methodology', 'Method'],
                   ['about', 'About'],
                 ] as const).map(([key, label]) => (
